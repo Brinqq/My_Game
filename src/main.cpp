@@ -1,7 +1,10 @@
 #include "global.h"
-#include "test.h"
+#include "window.h"
 
 int main(){
-  testing();
+  GLFWwindow* window = Window::initalizeNewWindow(1920, 1080);
+  while(!Window::getWindowStatus(window)){
+    Window::windowUpdate();
+  }
   return 0;
 }

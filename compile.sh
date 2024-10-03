@@ -30,7 +30,7 @@ CompileFlags="$CompilerVersion $debug -I$IncludeFolders $LibraryIncludes"
 
 CleanBuild=0
 
-DawrinFrameworks="-framework IOKit -framework CoreVideo -framework Cocoa"
+DawrinFrameworks="-framework IOKit -framework CoreVideo -framework Cocoa -framework Metal -framework CoreFoundation -framework QuartzCore"
 
 
 F={}
