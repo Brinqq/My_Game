@@ -14,17 +14,26 @@ release=-g2
 OutputDir=bin
 BuildDir=build
 ObjectOutputDir=$BuildDir/objects
+LibraryFolder=lib
 
-SourceFiles=($(find src/*.cpp))
+SourceFiles=($(find src -name "*.cpp"))
 IntermideateFiles=()
 IncludeFolders=("include/")
 
-LinkerFlags= 
-CompileFlags="$CompilerVersion $debug -I$IncludeFolders"
+GLFWPath="$LibraryFolder/glfw"
+LibraryFlags="-lglfw3"
+LibraryIncludes="-I$GLFWPath/include"
+LibraryLinkerFolder="-L$GLFWPath/build/src/"
+
+LinkerFlags="$LibraryLinkerFolder $LibraryFlags"
+CompileFlags="$CompilerVersion $debug -I$IncludeFolders $LibraryIncludes"
+
 CleanBuild=0
 
 DawrinFrameworks="-framework IOKit -framework CoreVideo -framework Cocoa"
 
+
+F={}
 
 if [ "$Platform" == "OSX" ]; then
   LinkerFlags+=" $DawrinFrameworks"
@@ -38,7 +47,7 @@ PrintInfo(){
 }
 
 CreateDir(){
-  mkdir $OutputDir $BuildDir $ObjectDir
+  mkdir $OutputDir $BuildDir $ObjectOutputDir
 }
 
 Clean(){
@@ -69,10 +78,17 @@ CompileSourceFiles(){
   echo Compilation Finished
 }
 
+CompileLibraries(){
+  cmake lib/glfw -B lib/glfw/build/
+  cd lib/glfw/build && make && cd ../../../
+}
+
+
 
 if ! test -d "$OutputDir"; then
   echo "Clean Build Detected"
   echo "Creating Directorys..."
+  CompileLibraries
   CreateDir
   CleanBuild=1
 fi
