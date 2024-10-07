@@ -1,20 +1,18 @@
-#include "defines.h"
+#include "Window.h"
 #include "GLFW/glfw3.h"
 
-namespace Window{
-
-GLFWwindow* initalizeNewWindow(int windowH, int windowW){
+Window::Window(){
   glfwInit();
-  return glfwCreateWindow(windowW, windowH, GAME_NAME, nullptr, nullptr)        ;
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+  windowHandle = glfwCreateWindow(windowW, windowH, "game",nullptr, nullptr);
 }
 
-void windowUpdate(){
+
+Window::~Window(){
+  glfwDestroyWindow(windowHandle);
+}
+
+void Window::update(){
   glfwPollEvents();
+  exitFlag = glfwWindowShouldClose(windowHandle);
 }
-
-int getWindowStatus(GLFWwindow* windowHandle){
-  return glfwWindowShouldClose(windowHandle);
-}
-
-}
-
