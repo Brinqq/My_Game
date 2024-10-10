@@ -22,7 +22,7 @@ struct LogMessage{
   int severity;
 };
 
-static std::vector<LogMessage> logArray;
+inline std::vector<LogMessage> logArray;
 
 inline void init(){
   logArray.reserve(40);
@@ -32,7 +32,7 @@ inline void addLog(int severity, const char* msg){
   logArray.emplace_back(LogMessage{msg, severity});
 }
 
-inline void logToOutputStdout(){
+inline void logToStdout(){
   for(const LogMessage& log: logArray ){
     switch(log.severity){
     case INFO:
@@ -48,7 +48,7 @@ inline void logToOutputStdout(){
       std::cout<< CRITICAL_OUTPUT_FORMAT << log.pMsg << std::endl;
       break;
     default:
-        std::cout<< ERROR_OUTPUT_FORMAT << log.pMsg << std::endl;
+        std::cout<< UNKNOWN_OUTPUT_FORMAT << log.pMsg << std::endl;
         break;
     }
   }
