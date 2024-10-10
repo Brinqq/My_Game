@@ -1,8 +1,18 @@
+#pragma once
 
-class GLFWwindow;
+struct GLFWwindow;
 
-namespace Window{
-  GLFWwindow* initalizeNewWindow(int windowH, int windowW);
-  void windowUpdate();
-  int getWindowStatus(GLFWwindow* windowHandle);
-}
+class Window{
+  private:
+    GLFWwindow* windowHandle;
+    
+
+  public:
+    int windowH = 1920;
+    int windowW = 1090;
+    int exitFlag = false;
+    
+    Window();
+    ~Window();
+    void update();
+};

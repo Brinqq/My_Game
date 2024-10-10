@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # TODO: Add reuseable object files for compilation
+# TODO: Fix vulkan path env
+# TODO: Fix the whole vulkan impl tbh
 
 ProgramName=game
 
@@ -20,10 +22,17 @@ SourceFiles=($(find src -name "*.cpp"))
 IntermideateFiles=()
 IncludeFolders=("include/")
 
+# glfw
 GLFWPath="$LibraryFolder/glfw"
 LibraryFlags="-lglfw3"
-LibraryIncludes="-I$GLFWPath/include"
 LibraryLinkerFolder="-L$GLFWPath/build/src/"
+LibraryIncludes="-I$GLFWPath/include"
+
+#vulkan
+VulkanPath="$HOME/programming/vulkan/macos"
+LibraryLinkerFolder+=" -L$VulkanPath/lib"
+LibraryFlags+=" -lvulkan.1 -lvulkan.1.3.290"
+LibraryIncludes+=" -I$VulkanPath/include"
 
 LinkerFlags="$LibraryLinkerFolder $LibraryFlags"
 CompileFlags="$CompilerVersion $debug -I$IncludeFolders $LibraryIncludes"
