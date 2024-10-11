@@ -7,7 +7,7 @@ void loop(){
   LOGGING::init();
   Window window;
   if(!window.validateVulkanLayer()) return;
-  testTraingle();
+  testTraingle(window);
   LOGGING::logToStdout();
   LOGGING::flushLogs();
   while(!gExitFlag){

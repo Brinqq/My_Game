@@ -1,5 +1,6 @@
 #pragma once
 
+class Window;
 
-void testTraingle();
+void testTraingle(const Window& window);
 
