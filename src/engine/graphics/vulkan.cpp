@@ -6,8 +6,9 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 #include "GLFW/glfw3.h"
+#include <bitset>
 
-
+#define REQ_QUEUE_FAMILIES VK_QUEUE_GRAPHICS_BIT || VK_QUEUE_TRANSFER_BIT
 
 struct GlfwInfo{
   uint32_t glfwExtensionCount = 0;
@@ -15,11 +16,13 @@ struct GlfwInfo{
 };
 
 struct QueueFamilies{
+  uint32_t graphicQueue = 0;
 
 };
 
 static VkInstance gInstanceHandle;
 static VkPhysicalDevice gDevice;
+static VkDevice gLogicalDevice;
 static VkApplicationInfo gInfo;
 static QueueFamilies gQueues;
 static VkResult result;
@@ -101,10 +104,25 @@ void queryAndInitPhysicalDevice(){
   
 }
 
-void initQueueFamilies(){
+int validateRequiredQueueFamilies(){
+  constexpr int requiredQueues = 2;
+  int foundQueues = 0;
   uint32_t queueCount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(gDevice, &queueCount, nullptr);
+ VkQueueFamilyProperties* availableQueueFamilies = (VkQueueFamilyProperties*)alloca(sizeof(VkQueueFamilyProperties)* queueCount);
+  vkGetPhysicalDeviceQueueFamilyProperties(gDevice, &queueCount, availableQueueFamilies);
+  for(int i = 0; i < queueCount; i++){
+    if(availableQueueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT || availableQueueFamilies[i].queueFlags & VK_QUEUE_TRANSFER_BIT){
+      foundQueues++;
+      if (requiredQueues == foundQueues){return true;}
+      continue;
+    }
+  }
+  return false;
+}
 
+void createLogicalDevice(){
+  
 }
 
 
@@ -116,7 +134,12 @@ void cleanup(){
 void testTraingle(){
   createVulkanInstance();
   queryAndInitPhysicalDevice();
-  initQueueFamilies();
+  if(!validateRequiredQueueFamilies()){
+    LOG(CRITICAL, "Required queues families not found");
+    gExitFlag = true;
+  }
+
+  createLogicalDevice();
 }
 
 
