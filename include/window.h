@@ -4,10 +4,8 @@ struct GLFWwindow;
 
 class Window{
   private:
-    GLFWwindow* windowHandle;
-    
-
   public:
+    GLFWwindow* windowHandle;
     int windowH = 1920;
     int windowW = 1090;
     int exitFlag = false;

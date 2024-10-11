@@ -14,7 +14,6 @@
 
 #define LOG(severity, msg)  LOGGING::addLog(severity, msg);
 
-
 namespace LOGGING{
 
 struct LogMessage{
