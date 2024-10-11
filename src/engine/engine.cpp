@@ -4,13 +4,15 @@
 #include "log.h"
 
 void loop(){
+  LOGGING::init();
   Window window;
   if(!window.validateVulkanLayer()) return;
   testTraingle();
-  while(!window.exitFlag){
+  LOGGING::logToStdout();
+  LOGGING::flushLogs();
+  while(!gExitFlag){
     window.update();
-    LOGGING::logToOutputStdout();
+    LOGGING::logToStdout();
     LOGGING::flushLogs();
   }
-  
 }

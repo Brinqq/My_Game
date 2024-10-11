@@ -1,5 +1,18 @@
-#include "Window.h"
+#define GLFW_INCLUDE_VULKAN
+#include "global.h"
+#include "window.h"
 #include "GLFW/glfw3.h"
+
+// TODO: Handle multiple possible errors when between vulkan and glfw
+
+int Window::validateVulkanLayer(){
+  if(glfwVulkanSupported() == GLFW_FALSE){
+    LOG(CRITICAL, "GLFW unable to obtain vulkan support");
+    return 0;
+  }
+
+  return 1;
+}
 
 Window::Window(){
   glfwInit();
@@ -10,9 +23,10 @@ Window::Window(){
 
 Window::~Window(){
   glfwDestroyWindow(windowHandle);
+  glfwTerminate();
 }
 
 void Window::update(){
   glfwPollEvents();
-  exitFlag = glfwWindowShouldClose(windowHandle);
+  gExitFlag = glfwWindowShouldClose(windowHandle);
 }

@@ -15,4 +15,5 @@ class Window{
     Window();
     ~Window();
     void update();
+    int validateVulkanLayer();
 };
