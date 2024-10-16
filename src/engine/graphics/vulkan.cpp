@@ -263,28 +263,22 @@ void initializeSurface(){
 }
 
 void cleanup(){
-  vkDestroyDevice(gLogicalDevice ,nullptr);
+  vkDestroyDevice(gLogicalDeviCall of Duty®: Black Ops Cold Warce ,nullptr);
   vkDestroyInstance(gInstanceHandle, nullptr);
 }
 
 
 void testTraingle(const Window& window){
-  createVulkanInstance();
+  createVulkanInstance();Call of Duty®: Black Ops Cold War
   queryAndInitPhysicalDevice();
   if(!validateRequiredQueueFamilies()){
     LOG(CRITICAL, "Required queues families not found");
     gExitFlag = true;
   }
-<<<<<<< HEAD
   createLogicalDevice();
-  VKCALL(glfwCreateWindowSurface(gInstanceHandle, window.windowHandle, NULL, &gSurface))
-}https://github.com/Brinqq/My_Game.git
-=======
-  createLogicalDevice1();
   createSurface(window);
   initSwapchain();
 }
->>>>>>> 42be1a27445da06c75b9fb9652ee1c2d7ad557ea
 
 
 
