@@ -9,12 +9,25 @@
 
 #define REQ_QUEUE_FAMILIES VK_QUEUE_GRAPHICS_BIT || VK_QUEUE_TRANSFER_BIT
 
+
+int getValidatedDeviceExtensions();
+
 #ifdef __APPLE__
+const uint32_t gDefaultQueueFamilyIndice = 0;
+
 struct QueueFamilies{
-  uint32_t graphicfamily;
-  uint32_t computeFamily;
-  uint32_t transferFamily;
+  uint32_t graphicfamily = 0;
+  uint32_t computeFamily = 1;
+  uint32_t transferFamily = 2;
 };
+
+struct VulkanQueues{
+  VkQueue graphicQueue;
+  VkQueue computeQueue;
+  VkQueue transferQueue;
+};
+
+#endif
 
 struct GlfwInfo{
   uint32_t glfwExtensionCount = 0;
@@ -23,7 +36,6 @@ struct GlfwInfo{
 
 static GlfwInfo glfwInfo;
 
-#endif
 
 #ifdef __WIN32__
 struct QueueFamilies{
@@ -35,7 +47,7 @@ uint32_t graphicQueue = 0;
 static VkInstance gInstanceHandle;
 static VkPhysicalDevice gDevice;
 static VkDevice gLogicalDevice;
-static VkQueue gGraphicQueue;
+static VulkanQueues gVulkanQueues;
 static VkSurfaceKHR gSurface;
 
 static QueueFamilies gQueues;
@@ -43,14 +55,82 @@ static VkApplicationInfo gInfo;
 
 
 
-
 std::array<const char*, 1> validationLayers= {
   "VK_LAYER_KHRONOS_validation"
 };
 
-std::array<const char*, 1> requiredDeviceExtensions = {
-  "VK_KHR_portability_subset"
-};
+std::array<const char*, 2> requiredDeviceExtensions = {
+  "VK_KHR_portability_subset",
+  "VK_KHR_swapchain"
+}
+;
+#ifdef __APPLE__
+int validateRequiredQueueFamilies(){ 
+  uint32_t queueFamilyCount;
+  vkGetPhysicalDeviceQueueFamilyProperties(gDevice, &queueFamilyCount, nullptr);
+  VkQueueFamilyProperties* availableQueueFamilies = (VkQueueFamilyProperties*)alloca(sizeof(VkQueueFamilyProperties)*queueFamilyCount);
+  vkGetPhysicalDeviceQueueFamilyProperties(gDevice, &queueFamilyCount, availableQueueFamilies);
+  for(int i = 0; i < queueFamilyCount;i++){
+    if(availableQueueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT|VK_QUEUE_TRANSFER_BIT|VK_QUEUE_COMPUTE_BIT){
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+void createLogicalDevice1(){
+  const uint32_t queueCount = 3;
+  const float priorties[3] = {1.0, 0.99, 0.97};
+
+  VkDeviceCreateInfo dci{};
+  VkPhysicalDeviceFeatures deviceFeatures{};
+  VkDeviceQueueCreateInfo* pQueues = (VkDeviceQueueCreateInfo*)alloca(sizeof(VkDeviceQueueCreateInfo)*queueCount);
+
+  pQueues[0] = VkDeviceQueueCreateInfo{};
+  pQueues[1] = VkDeviceQueueCreateInfo{};
+  pQueues[2] = VkDeviceQueueCreateInfo{};
+  pQueues[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  pQueues[0].pQueuePriorities = &priorties[0];
+  pQueues[0].queueFamilyIndex = 0; 
+  pQueues[0].queueCount = 1;
+  pQueues[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  pQueues[1].pQueuePriorities = &priorties[1];
+  pQueues[1].queueFamilyIndex = 1; 
+  pQueues[1].queueCount = 1;
+  pQueues[2].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  pQueues[2].pQueuePriorities = &priorties[2];
+  pQueues[2].queueFamilyIndex = 2; 
+  pQueues[2].queueCount = 1;
+
+  dci.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+  dci.queueCreateInfoCount = 3;
+  dci.pQueueCreateInfos =  pQueues;
+  dci.pEnabledFeatures = &deviceFeatures;
+
+  if(!getValidatedDeviceExtensions()){
+    LOG(CRITICAL, "Could not find required device extensions")
+    return;
+  };
+
+  dci.enabledExtensionCount = requiredDeviceExtensions.size();
+  dci.ppEnabledExtensionNames = requiredDeviceExtensions.data();
+  vkCreateDevice(gDevice, &dci, nullptr, &gLogicalDevice);
+
+  vkGetDeviceQueue(gLogicalDevice, 0, 0, &gVulkanQueues.graphicQueue);
+  vkGetDeviceQueue(gLogicalDevice, 1, 0, &gVulkanQueues.computeQueue);
+  vkGetDeviceQueue(gLogicalDevice, 2, 0, &gVulkanQueues.transferQueue);
+}
+
+void createSurface(const Window& window){
+  VKCALL(glfwCreateWindowSurface(gInstanceHandle, window.windowHandle, NULL, &gSurface))
+}
+
+#endif
+
+
+
+
 
 
 int validateLayerAvailability(){
@@ -128,25 +208,6 @@ void queryAndInitPhysicalDevice(){
   
 }
 
-// TODO: Fix this function
-int validateRequiredQueueFamilies(){
-  constexpr int requiredQueues = 2;
-  int foundQueues = 0;
-  uint32_t queueCount = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(gDevice, &queueCount, nullptr);
- VkQueueFamilyProperties* availableQueueFamilies = (VkQueueFamilyProperties*)alloca(sizeof(VkQueueFamilyProperties)* queueCount);
-  vkGetPhysicalDeviceQueueFamilyProperties(gDevice, &queueCount, availableQueueFamilies);
-  for(int i = 0; i < queueCount; i++){
-    if(availableQueueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT || availableQueueFamilies[i].queueFlags & VK_QUEUE_TRANSFER_BIT){
-      foundQueues++;
-      if (requiredQueues == foundQueues){return true;}
-      continue;
-    }
-  }
-  return false;
-}
-
-
 int getValidatedDeviceExtensions(){
   uint32_t deviceExtensionCount = 0;
   int requiredExtenstions = requiredDeviceExtensions.size();
@@ -174,7 +235,7 @@ void createLogicalDevice(){
 
   dqi.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
   dqi.queueCount = 1;
-  dqi.queueFamilyIndex = gQueues.graphicQueue;
+  dqi.queueFamilyIndex = gQueues.graphicfamily;
   dqi.pQueuePriorities = &queuePriorities;
   
   deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -190,7 +251,12 @@ void createLogicalDevice(){
   deviceCreateInfo.enabledExtensionCount = requiredDeviceExtensions.size();
   deviceCreateInfo.ppEnabledExtensionNames = requiredDeviceExtensions.data();
   VKCALL(vkCreateDevice(gDevice, &deviceCreateInfo, nullptr, &gLogicalDevice))
-  vkGetDeviceQueue(gLogicalDevice, gQueues.graphicQueue, 0 , &gGraphicQueue);
+  vkGetDeviceQueue(gLogicalDevice, gQueues.graphicfamily, 0 , &gVulkanQueues.graphicQueue);
+}
+
+void initSwapchain(){
+  
+
 }
 
 void initializeSurface(){
@@ -209,8 +275,9 @@ void testTraingle(const Window& window){
     LOG(CRITICAL, "Required queues families not found");
     gExitFlag = true;
   }
-  createLogicalDevice();
-  VKCALL(glfwCreateWindowSurface(gInstanceHandle, window.windowHandle, NULL, &gSurface))
+  createLogicalDevice1();
+  createSurface(window);
+  initSwapchain();
 }
 
 
