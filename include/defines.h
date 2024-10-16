@@ -3,5 +3,7 @@
 
 
 
+#ifndef _WIN64
+#error "64 bit required on windows"
 
-static_assert(sizeof(unsigned int) == 4, "Expected 64bit architecture");
+#endif

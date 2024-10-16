@@ -3,7 +3,7 @@
 
 #include "application.h"
 
-int main(){
+int main(void){
   applicationStart();
   return 0;
 }

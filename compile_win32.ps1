@@ -19,9 +19,9 @@ $Vulkan_SDK_Path= "S:\dev\SDK\vulkan"
 $Vulkan_Include_path ="$Vulkan_SDK_Path\include\"
 $Vulkan_Lib_Path=
 
-$Includes=@("-I$Vulkan_Include_path")
+$Includes=@("-I$Vulkan_Include_path", "-Isrc\platform\windows")
 $Library_Paths=@("-L$Vulkan_SDK_Path\lib\")
-$Library_link=@("-lvulkan-1")
+$Library_link=@("-lvulkan-1", "-lkernel32", "-luser32")
 
 $Linker_Flags = "$Library_Paths $Library_link"
 $Compile_Flags = "-std=c++17 -Iinclude\ -c $Includes"
@@ -57,6 +57,10 @@ function Create_Executable{
     $arr += "$Build_Path/objects/"+ "$File"
   }
   Invoke-Expression "$Compiler $arr -o $Bin_Path/$Executable_Name $Linker_Flags"
+  if(-not($LastExitCode -eq 0)){
+    echo "ERROR: Failed to create executable!"
+    Exit 1
+  }
   echo "Executable creation successful!"
 
 }
