@@ -2,5 +2,5 @@
 
 class Window;
 
-void testTraingle(const Window& window);
+void testTraingle();
 

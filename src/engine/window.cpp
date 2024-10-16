@@ -1,3 +1,4 @@
+#ifdef __APPLE__
 #define GLFW_INCLUDE_VULKAN
 #include "global.h"
 #include "window.h"
@@ -30,3 +31,5 @@ void Window::update(){
   glfwPollEvents();
   gExitFlag = glfwWindowShouldClose(windowHandle);
 }
+
+#endif

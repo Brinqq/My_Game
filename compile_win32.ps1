@@ -13,10 +13,21 @@ $Build_Path = "build"
 
 $Fresh_Build = 0
 
-$Linker_Flags =
-$Compile_Flags = "-std=c++17"
 
-$Source_Files = 
+#TODO: Fix hardcoded path
+$Vulkan_SDK_Path= "S:\dev\SDK\vulkan"
+$Vulkan_Include_path ="$Vulkan_SDK_Path\include\"
+$Vulkan_Lib_Path=
+
+$Includes=@("-I$Vulkan_Include_path")
+$Library_Paths=@("-L$Vulkan_SDK_Path\lib\")
+$Library_link=@("-lvulkan-1")
+
+$Linker_Flags = "$Library_Paths $Library_link"
+$Compile_Flags = "-std=c++17 -Iinclude\ -c $Includes"
+
+
+$Source_Files = Get-ChildItem -Path src -Dir -Recurse -Exclude macos | Get-ChildItem -File -Filter *.cpp | Select -expand fullName
 $Include_Directories = 
 
 $Library_Paths =
@@ -39,4 +50,32 @@ if(-Not(Test-Path -Path $Bin_Path)){
   Create_Directories
 }
 
-Invoke-Expression "$Compiler $compiler_Flags src\main.cpp -o $Bin_Path\$Executable_Name"
+function Create_Executable{
+  $Object_Files=Get-ChildItem -Path $Build_Path/objects -File -Filter *.o | Select -Expand Name
+  $arr=@()
+  foreach($File in $Object_Files){
+    $arr += "$Build_Path/objects/"+ "$File"
+  }
+  Invoke-Expression "$Compiler $arr -o $Bin_Path/$Executable_Name $Linker_Flags"
+  echo "Executable creation successful!"
+
+}
+
+function Compile_File($File){
+  $substr = $File.split('\')
+  $len = $substr.Length
+  $Object_Name = $substr[$len-1].replace(".cpp", ".o")
+  Invoke-Expression "$compiler $Compile_Flags $File -o $Build_Path/Objects/$Object_Name"
+  if(-not($LastExitCode -eq 0)){
+    Exit 1
+  }
+}
+
+#TODO: fix main file
+compile_File("src\main.cpp")
+foreach($File in $Source_Files){
+  Compile_File($File)
+}
+
+Create_Executable
+

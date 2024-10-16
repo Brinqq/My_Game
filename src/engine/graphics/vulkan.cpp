@@ -34,14 +34,28 @@ struct GlfwInfo{
   const char** glfwExtension;
 };
 
+#ifdef _WIN32
+struct VulkanQueues{
+  VkQueue graphicQueue;
+  VkQueue computeQueue;
+  VkQueue transferQueue;
+};
+
+struct QueueFamilies{
+  uint32_t graphicfamily = 0;
+  uint32_t computeFamily = 1;
+  uint32_t transferFamily = 2;
+};
+
+int validateRequiredQueueFamilies(){
+  return 0;
+}
+
+#endif
+
 static GlfwInfo glfwInfo;
 
 
-#ifdef __WIN32__
-struct QueueFamilies{
-uint32_t graphicQueue = 0;
-};
-#endif
 
 
 static VkInstance gInstanceHandle;
@@ -131,8 +145,6 @@ void createSurface(const Window& window){
 
 
 
-
-
 int validateLayerAvailability(){
   int requestedLayers = validationLayers.size();
   int layersFound = 0; 
@@ -168,7 +180,7 @@ void createVulkanInstance(){
   gInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 
   //Vulkan Requires extensions to interface with windows api so we use glfw function that returns that
-  glfwInfo.glfwExtension = glfwGetRequiredInstanceExtensions(&glfwInfo.glfwExtensionCount);
+  // glfwInfo.glfwExtension = glfwGetRequiredInstanceExtensions(&glfwInfo.glfwExtensionCount);
 
   //vk init struct also Requires a create info struct
   VkInstanceCreateInfo instanceInfo{};
@@ -263,20 +275,21 @@ void initializeSurface(){
 }
 
 void cleanup(){
-  vkDestroyDevice(gLogicalDeviCall of Duty®: Black Ops Cold Warce ,nullptr);
+  vkDestroyDevice(gLogicalDevice ,nullptr);
   vkDestroyInstance(gInstanceHandle, nullptr);
 }
 
 
-void testTraingle(const Window& window){
-  createVulkanInstance();Call of Duty®: Black Ops Cold War
+void testTraingle(){
+  createVulkanInstance();
   queryAndInitPhysicalDevice();
   if(!validateRequiredQueueFamilies()){
     LOG(CRITICAL, "Required queues families not found");
     gExitFlag = true;
   }
   createLogicalDevice();
-  createSurface(window);
+
+  // createSurface(window);
   initSwapchain();
 }
 

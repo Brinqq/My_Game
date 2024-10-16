@@ -1,4 +1,5 @@
 #pragma once
+#ifdef __APPLE__
 
 struct GLFWwindow;
 
@@ -15,3 +16,5 @@ class Window{
     void update();
     int validateVulkanLayer();
 };
+
+#endif

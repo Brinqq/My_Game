@@ -1,9 +1,9 @@
 // #include "global.h"
 // #include "game.h"
-#include <windows.h>
-#include <stdio.h>
+
+#include "application.h"
 
 int main(){
-  printf("Hello, World!");
-  // start();
+  applicationStart();
+  return 0;
 }
