@@ -6,6 +6,7 @@
 
 ProgramName=game
 
+#TODO: Add platform detection
 CXX=clang++
 Platform=OSX
 
@@ -18,7 +19,14 @@ BuildDir=build
 ObjectOutputDir=$BuildDir/objects
 LibraryFolder=lib
 
-SourceFiles=($(find src -name "*.cpp"))
+PlatformMacosPath=src/platform/macos/*
+PlatformLinuxPath=src/platform/linux/*
+PlatformWinPath=src/platform/windows/*
+
+
+
+# SourceFiles=($(find src -name "*.cpp"))
+
 IntermideateFiles=()
 IncludeFolders=("include/")
 
@@ -46,7 +54,11 @@ F={}
 
 if [ "$Platform" == "OSX" ]; then
   LinkerFlags+=" $DawrinFrameworks"
+  SourceFiles=($(find src -name "*.cpp" -not -path "src/platform/windows/*" -not -path "src/platform/linux/*" ))
 fi
+
+
+
 
 PrintInfo(){
   echo "Compiler: $CXX"
