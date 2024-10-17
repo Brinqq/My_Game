@@ -1,4 +1,6 @@
+#pragma once
 #include "global.h"
+
 
 
 #ifdef _WIN32
@@ -9,21 +11,31 @@
 
 #ifdef __APPLE__ 
 #include "windowimpl_macos.h"
+#include "vulkan/vulkan.h"
+#include "GLFW/glfw3.h"
 
   struct StateHandles{
     WindowState windowState;
   };
   
+  inline StateHandles* pStateHandles;
+
   void windowUpdate(WindowState& state);
   int windowCreate(WindowState& state);
 
   //platform specific vulkan impl function definitions
-  void pvCreateLogicalDevice();
+  struct QueueFamilyIndices;
+
+  void pvCreateSurface();
+  int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, QueueFamilyIndices& indexStruct, uint32_t count);
   int pvGetRequiredInstanceExtensions(std::vector<const char*>& ext);
   int pvInitialize();
 
-  inline StateHandles* pStateHandles;
+  void inline pvCreateSurface(VkInstance inst, VkSurfaceKHR* surface){
+    glfwCreateWindowSurface(inst, pStateHandles->windowState.windowHandle, nullptr, surface);
+  };
 
+  //internal logic
 
   inline int platformInitialize(){
     pStateHandles = (StateHandles*)malloc(sizeof(StateHandles));

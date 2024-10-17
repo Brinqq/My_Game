@@ -2,7 +2,7 @@
 #include "platform.h"
 #include "GLFW/glfw3.h"
 
-#include "vulkan/vulkan.h"
+#include "vulkandefines.h"
 
 
 struct ValidationArrays{
@@ -37,6 +37,24 @@ int pvGetRequiredInstanceExtensions(std::vector<const char*>& ext){
   return 0;
 }
 
+  
+int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, QueueFamilyIndices& indexStruct, uint32_t count){
+  int x = 0;
+  for(int i = 0; i < count;i++){
+    if(properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT|VK_QUEUE_TRANSFER_BIT|VK_QUEUE_COMPUTE_BIT){
+       x++;
+    }
+  }
+
+  if(x == count){
+    indexStruct.graphicQueueFamilyIndex = 0;
+    indexStruct.computeQueueFamilyIndex = 1;
+    indexStruct.tranferQueueFamilyIndex = 2;
+    return 0;
+  }
+  
+  return 1;
+}
 
 void pvCreateLogicalDevice(){
 

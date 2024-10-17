@@ -1,9 +1,9 @@
 #include "global.h"
-
-#include "windowimpl_macos.h"
 #include "platform.h"
-#include "GLFW/glfw3.h"
+#include "windowimpl_macos.h"
 #include "log.h"
+
+#include "GLFW/glfw3.h"
 
 
 #define WINDOW_DEFAULT_RES_X 1280
@@ -11,6 +11,8 @@
 
 
 struct WindowState;
+
+static WindowState* pWindowState;
 
 void windowErrorCallback(int errorName, const char* description){
   LOGGING::addLog(CRITICAL, "failed to create window");
@@ -27,6 +29,7 @@ int windowCreate(WindowState& state){
     glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
     state.windowHandle = glfwCreateWindow(x, y, "Game", nullptr, nullptr);
     glfwShowWindow(state.windowHandle);
+    pWindowState = &state;
     return 0;
   }
 
