@@ -28,7 +28,7 @@ PlatformWinPath=src/platform/windows/*
 # SourceFiles=($(find src -name "*.cpp"))
 
 IntermideateFiles=()
-IncludeFolders=("include/")
+IncludeFolders=("-Iinclude/ -Isrc/platform/macos")
 
 # glfw
 GLFWPath="$LibraryFolder/glfw"
@@ -43,7 +43,7 @@ LibraryFlags+=" -lvulkan.1 -lvulkan.1.3.290"
 LibraryIncludes+=" -I$VulkanPath/include"
 
 LinkerFlags="$LibraryLinkerFolder $LibraryFlags"
-CompileFlags="$CompilerVersion $debug -I$IncludeFolders $LibraryIncludes"
+CompileFlags="$CompilerVersion $debug $IncludeFolders $LibraryIncludes"
 
 CleanBuild=0
 
