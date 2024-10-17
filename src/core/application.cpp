@@ -6,7 +6,7 @@
 
 static void loop(){
   while(!gExitFlag){
-    
+    platformGlobalUpdate();
     LOGGING::logToStdout();
     LOGGING::flushLogs();
   }
@@ -15,7 +15,7 @@ static void loop(){
 
 void applicationStart(){
   LOGGING::init();  
-  platformStartUp();
+  platformInitialize();
   loop();
   LOGGING::logToStdout();
   LOGGING::flushLogs();
