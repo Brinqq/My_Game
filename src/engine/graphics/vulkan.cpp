@@ -6,6 +6,8 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 
+#include "platform.h"
+
 #define REQ_QUEUE_FAMILIES VK_QUEUE_GRAPHICS_BIT || VK_QUEUE_TRANSFER_BIT
 
 
@@ -180,7 +182,6 @@ void createVulkanInstance(){
   gInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 
   //Vulkan Requires extensions to interface with windows api so we use glfw function that returns that
-  // glfwInfo.glfwExtension = glfwGetRequiredInstanceExtensions(&glfwInfo.glfwExtensionCount);
 
   //vk init struct also Requires a create info struct
   VkInstanceCreateInfo instanceInfo{};
@@ -191,13 +192,17 @@ void createVulkanInstance(){
   
   //Required extension setup for mac to avoid driver protability error
   std::vector<const char*> extensions;
-  for(uint32_t i = 0; i < glfwInfo.glfwExtensionCount; i++){
-    extensions.emplace_back(glfwInfo.glfwExtension[i]);
-  }
-  extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-  extensions.emplace_back("VK_KHR_get_physical_device_properties2");
-  extensions.emplace_back("VK_EXT_metal_surface");
-  extensions.emplace_back("VK_KHR_surface");
+  pvGetRequiredInstanceExtensions(extensions);
+
+  // glfwInfo.glfwExtension = glfwGetRequiredInstanceExtensions(&glfwInfo.glfwExtensionCount);
+  // std::vector<const char*> extensions;
+  // for(uint32_t i = 0; i < glfwInfo.glfwExtensionCount; i++){
+  //   extensions.emplace_back(glfwInfo.glfwExtension[i]);
+  // }
+  // extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+  // extensions.emplace_back("VK_KHR_get_physical_device_properties2");
+  // extensions.emplace_back("VK_EXT_metal_surface");
+  // extensions.emplace_back("VK_KHR_surface");
 
 
   instanceInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
@@ -239,32 +244,32 @@ int getValidatedDeviceExtensions(){
     return false;
 }
 
-void createLogicalDevice(){
-  VkDeviceQueueCreateInfo dqi{};
-  const float queuePriorities = 1.0;
-  VkPhysicalDeviceFeatures deviceFeatures{};
-  VkDeviceCreateInfo deviceCreateInfo{};
-
-  dqi.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  dqi.queueCount = 1;
-  dqi.queueFamilyIndex = gQueues.graphicfamily;
-  dqi.pQueuePriorities = &queuePriorities;
-  
-  deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  deviceCreateInfo.pQueueCreateInfos = &dqi;
-  deviceCreateInfo.queueCreateInfoCount = 1;
-  deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-
-  if(!getValidatedDeviceExtensions()){
-    LOG(CRITICAL, "Could not find required device extensions")
-    return;
-  };
-  
-  deviceCreateInfo.enabledExtensionCount = requiredDeviceExtensions.size();
-  deviceCreateInfo.ppEnabledExtensionNames = requiredDeviceExtensions.data();
-  VKCALL(vkCreateDevice(gDevice, &deviceCreateInfo, nullptr, &gLogicalDevice))
-  vkGetDeviceQueue(gLogicalDevice, gQueues.graphicfamily, 0 , &gVulkanQueues.graphicQueue);
-}
+// void createLogicalDevice(){
+//   VkDeviceQueueCreateInfo dqi{};
+//   const float queuePriorities = 1.0;
+//   VkPhysicalDeviceFeatures deviceFeatures{};
+//   VkDeviceCreateInfo deviceCreateInfo{};
+//
+//   dqi.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+//   dqi.queueCount = 1;
+//   dqi.queueFamilyIndex = gQueues.graphicfamily;
+//   dqi.pQueuePriorities = &queuePriorities;
+//   
+//   deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+//   deviceCreateInfo.pQueueCreateInfos = &dqi;
+//   deviceCreateInfo.queueCreateInfoCount = 1;
+//   deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+//
+//   if(!getValidatedDeviceExtensions()){
+//     LOG(CRITICAL, "Could not find required device extensions")
+//     return;
+//   };
+//   
+//   deviceCreateInfo.enabledExtensionCount = requiredDeviceExtensions.size();
+//   deviceCreateInfo.ppEnabledExtensionNames = requiredDeviceExtensions.data();
+//   VKCALL(vkCreateDevice(gDevice, &deviceCreateInfo, nullptr, &gLogicalDevice))
+//   vkGetDeviceQueue(gLogicalDevice, gQueues.graphicfamily, 0 , &gVulkanQueues.graphicQueue);
+// }
 
 void initSwapchain(){
   
@@ -281,16 +286,18 @@ void cleanup(){
 
 
 void testTraingle(){
+  pvInitialize();
   createVulkanInstance();
   queryAndInitPhysicalDevice();
   if(!validateRequiredQueueFamilies()){
     LOG(CRITICAL, "Required queues families not found");
     gExitFlag = true;
   }
-  createLogicalDevice();
 
+  // createLogicalDevice1();
+  cleanup();
   // createSurface(window);
-  initSwapchain();
+  // initSwapchain();
 }
 
 

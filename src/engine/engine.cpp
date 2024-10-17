@@ -3,7 +3,7 @@
 #include "vulkan.h"
 #include "log.h"
 
-void engineinit(){
+void engineInit(){
   testTraingle();
 }
 

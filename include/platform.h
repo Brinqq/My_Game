@@ -17,6 +17,11 @@
   void windowUpdate(WindowState& state);
   int windowCreate(WindowState& state);
 
+  //platform specific vulkan impl function definitions
+  void pvCreateLogicalDevice();
+  int pvGetRequiredInstanceExtensions(std::vector<const char*>& ext);
+  int pvInitialize();
+
   inline StateHandles* pStateHandles;
 
 

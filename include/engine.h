@@ -1,4 +1,4 @@
 #pragma once
 
-void engineinit();
+void engineInit();
 void testUpdate();

@@ -57,4 +57,9 @@ inline void flushLogs(){
   logArray.clear();
 }
 
+inline void update(){
+  logToStdout();
+  flushLogs();
+}
+
 }

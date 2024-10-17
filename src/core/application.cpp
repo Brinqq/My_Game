@@ -7,8 +7,7 @@
 static void loop(){
   while(!gExitFlag){
     platformGlobalUpdate();
-    LOGGING::logToStdout();
-    LOGGING::flushLogs();
+    LOGGING::update();
   }
 }
 
@@ -16,7 +15,7 @@ static void loop(){
 void applicationStart(){
   LOGGING::init();  
   platformInitialize();
+  engineInit();
+  LOGGING::update();
   loop();
-  LOGGING::logToStdout();
-  LOGGING::flushLogs();
 }
