@@ -50,6 +50,7 @@ int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, QueueFamilyIn
     indexStruct.graphicQueueFamilyIndex = 0;
     indexStruct.computeQueueFamilyIndex = 1;
     indexStruct.tranferQueueFamilyIndex = 2;
+    indexStruct.presentQueueFamilyIndex = 3;
     return 0;
   }
   

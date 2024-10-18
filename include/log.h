@@ -13,6 +13,7 @@
 #define UNKNOWN_OUTPUT_FORMAT "\033[1m\033[35m" << "UNKOWN LOG TYPE" << ": " << "\033[0m"
 
 #define LOG(severity, msg)  LOGGING::addLog(severity, msg);
+#define lOG_TICK()
 
 namespace LOGGING{
 

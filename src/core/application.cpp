@@ -1,3 +1,4 @@
+#include "global.h"
 #include "application.h"
 #include "engine.h"
 #include "game.h"
@@ -11,10 +12,10 @@ static void loop(){
   }
 }
 
-
 void applicationStart(){
   LOGGING::init();  
   platformInitialize();
+
   engineInit();
   LOGGING::update();
   loop();

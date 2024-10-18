@@ -12,6 +12,7 @@
 #define REQ_QUEUE_FAMILIES VK_QUEUE_GRAPHICS_BIT || VK_QUEUE_TRANSFER_BIT
 
 
+
 int getValidatedDeviceExtensions();
 
 #ifdef __APPLE__
@@ -28,6 +29,7 @@ struct VulkanQueues{
   VkQueue graphicQueue;
   VkQueue computeQueue;
   VkQueue transferQueue;
+  VkQueue presentQueue;
 };
 
 #endif
@@ -66,6 +68,7 @@ static VkPhysicalDevice gDevice;
 static VkDevice gLogicalDevice;
 static VulkanQueues gVulkanQueues;
 static VkSurfaceKHR gSurface;
+static SwapChainDetails gSwapChainDetails;
 
 static QueueFamilies gQueues;
 static QueueFamilyIndices gq;
@@ -95,9 +98,11 @@ return 0;
 return 1;
 }
 
-void createLogicalDevice(){
-const uint32_t queueCount = 3;
-const float priorties[3] = {1.0, 0.99, 0.97};
+
+
+void createLogicalDeviceA(){
+const uint32_t queueCount = 4;
+const float priorties[4] = {1.0, 0.99, 0.97, 0.96};
 
 VkDeviceCreateInfo dci{};
 VkPhysicalDeviceFeatures deviceFeatures{};
@@ -106,6 +111,7 @@ VkDeviceQueueCreateInfo* pQueues = (VkDeviceQueueCreateInfo*)alloca(sizeof(VkDev
 pQueues[0] = VkDeviceQueueCreateInfo{};
 pQueues[1] = VkDeviceQueueCreateInfo{};
 pQueues[2] = VkDeviceQueueCreateInfo{};
+pQueues[3] = VkDeviceQueueCreateInfo{};
 pQueues[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 pQueues[0].pQueuePriorities = &priorties[0];
 pQueues[0].queueFamilyIndex = gq.graphicQueueFamilyIndex; 
@@ -118,9 +124,13 @@ pQueues[2].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 pQueues[2].pQueuePriorities = &priorties[2];
 pQueues[2].queueFamilyIndex = gq.tranferQueueFamilyIndex; 
 pQueues[2].queueCount = 1;
+pQueues[3].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+pQueues[3].pQueuePriorities = &priorties[3];
+pQueues[3].queueFamilyIndex = gq.presentQueueFamilyIndex; 
+pQueues[3].queueCount = 1;
 
 dci.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-dci.queueCreateInfoCount = 3;
+dci.queueCreateInfoCount = 4;
 dci.pQueueCreateInfos =  pQueues;
 dci.pEnabledFeatures = &deviceFeatures;
 
@@ -136,7 +146,6 @@ vkCreateDevice(gDevice, &dci, nullptr, &gLogicalDevice);
 vkGetDeviceQueue(gLogicalDevice, gq.graphicQueueFamilyIndex, 0, &gVulkanQueues.graphicQueue);
 vkGetDeviceQueue(gLogicalDevice, gq.computeQueueFamilyIndex, 0, &gVulkanQueues.computeQueue);
 vkGetDeviceQueue(gLogicalDevice, gq.tranferQueueFamilyIndex, 0, &gVulkanQueues.transferQueue);
-
 }
 
 void createSurface(const Window& window){
@@ -231,17 +240,41 @@ int getValidatedDeviceExtensions(){
     return false;
 }
 
+void initPresentQueueA(){
+    vkGetDeviceQueue(gLogicalDevice, 4, 0, &gVulkanQueues.presentQueue);
+}
+
+int validateSwapchainSupport(){
+  uint32_t numFormats;
+  uint32_t numPresentModes;
+
+    VKCALL(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gDevice, gSurface, &gSwapChainDetails.capabilites))
+
+    VKCALL(vkGetPhysicalDeviceSurfaceFormatsKHR(gDevice, gSurface, &numFormats, nullptr))
+    VKCALL(vkGetPhysicalDeviceSurfacePresentModesKHR(gDevice, gSurface, &numPresentModes, nullptr))
+
+    if(numFormats > FORMATS_PREALLOC_ARRAY_SIZE || numPresentModes > PRESENTMODES_PREALLOC_ARRAY_SIZE){
+    LOG(ERROR, "Format or PresentMode count larger than container size!")
+    printf("PresentModes: %i, Formats: %i\n", numPresentModes, numFormats);
+    }
+
+    VKCALL(vkGetPhysicalDeviceSurfaceFormatsKHR(gDevice, gSurface, &numFormats, gSwapChainDetails.formatArr.data()))
+    VKCALL(vkGetPhysicalDeviceSurfacePresentModesKHR(gDevice, gSurface, &numPresentModes, gSwapChainDetails.presentModeArr.data()))
+    if(numFormats != 0 && numPresentModes != 0 ) return 0;
+    return 1;
+}
 
 void initSwapchain(){
-  
+  if (!validateSwapchainSupport()){
+    LOG(CRITICAL, "Device does not support required swapchain capabilites!")
+    return;
+  };
 
 }
 
-void initializeSurface(){
-}
 
 void cleanup(){
-vkDestroySurfaceKHR(gInstanceHandle, gSurface, nullptr);
+  vkDestroySurfaceKHR(gInstanceHandle, gSurface, nullptr);
   vkDestroyDevice(gLogicalDevice ,nullptr);
   vkDestroyInstance(gInstanceHandle, nullptr);
 }
@@ -256,10 +289,11 @@ void testTraingle(){
     gExitFlag = true;
   }
 
-  createLogicalDevice();
+//TODO: Abstract into platform api
+  createLogicalDeviceA();
   pvCreateSurface(gInstanceHandle, &gSurface);
+  initSwapchain();
   cleanup();
-  // initSwapchain();
 }
 
 
