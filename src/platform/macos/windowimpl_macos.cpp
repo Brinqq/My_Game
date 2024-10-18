@@ -18,6 +18,11 @@ void windowErrorCallback(int errorName, const char* description){
   LOGGING::addLog(CRITICAL, "failed to create window");
 }
 
+void pwGetPresentationSize(int& x, int& y){
+  glfwGetFramebufferSize(pWindowState->windowHandle, &x , &y);
+}
+
+
 int windowCreate(WindowState& state){
     const int x = WINDOW_DEFAULT_RES_X;
     const int y = WINDOW_DEFAULT_RES_Y;

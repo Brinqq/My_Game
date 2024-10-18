@@ -22,6 +22,7 @@
 
   void windowUpdate(WindowState& state);
   int windowCreate(WindowState& state);
+  void pwGetPresentationSize(int& x, int& y);
 
   //platform specific vulkan impl function definitions
   struct QueueFamilyIndices;

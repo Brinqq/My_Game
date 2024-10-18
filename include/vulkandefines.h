@@ -20,3 +20,27 @@ struct SwapChainDetails{
   std::array<VkSurfaceFormatKHR,  FORMATS_PREALLOC_ARRAY_SIZE> formatArr;
   std::array<VkPresentModeKHR,PRESENTMODES_PREALLOC_ARRAY_SIZE> presentModeArr;
 };
+
+
+struct VulkanQueues{
+  VkQueue graphicQueue;
+  VkQueue computeQueue;
+  VkQueue transferQueue;
+  VkQueue presentQueue;
+};
+
+struct VulkanContext{
+  VkInstance instanceHandle;
+  VkPhysicalDevice physicalDevice;
+  VkDevice device;
+  VulkanQueues queues;
+  VkSurfaceKHR surface;
+  VkSwapchainKHR swapchain;
+  SwapChainDetails swapChainDetails;
+  QueueFamilyIndices queueFamilyIndices;
+  VkApplicationInfo Appinfo;
+
+  std::vector<VkImage> swapChainImages;
+  std::vector<VkImageView> swapImageViews;
+
+};

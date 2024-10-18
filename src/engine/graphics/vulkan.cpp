@@ -6,71 +6,24 @@
 #include "vulkandefines.h"
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
-
 #include "platform.h"
-
-#define REQ_QUEUE_FAMILIES VK_QUEUE_GRAPHICS_BIT || VK_QUEUE_TRANSFER_BIT
-
-
 
 int getValidatedDeviceExtensions();
 
-#ifdef __APPLE__
-#include "GLFW/glfw3.h"
-const uint32_t gDefaultQueueFamilyIndice = 0;
-
-struct QueueFamilies{
-  uint32_t graphicfamily = 0;
-  uint32_t computeFamily = 1;
-  uint32_t transferFamily = 2;
-};
-
-struct VulkanQueues{
-  VkQueue graphicQueue;
-  VkQueue computeQueue;
-  VkQueue transferQueue;
-  VkQueue presentQueue;
-};
-
-#endif
-
-struct GlfwInfo{
-  uint32_t glfwExtensionCount = 0;
-  const char** glfwExtension;
-};
-
-#ifdef _WIN32
-struct VulkanQueues{
-  VkQueue graphicQueue;
-  VkQueue computeQueue;
-  VkQueue transferQueue;
-};
-
-struct QueueFamilies{
-  uint32_t graphicfamily = 0;
-  uint32_t computeFamily = 1;
-  uint32_t transferFamily = 2;
-};
-
-int validateRequiredQueueFamilies(){
-  return 0;
-}
-
-#endif
-
-static GlfwInfo glfwInfo;
-
-
-
+//Sorted from most Desirable to least
+const std::array<int, 2>DesirablePresentationModes{VK_PRESENT_MODE_FIFO_KHR, VK_PRESENT_MODE_FIFO_RELAXED_KHR};
+const std::array<int, 2>DesirableFormatsModes{VK_PRESENT_MODE_FIFO_KHR, VK_PRESENT_MODE_FIFO_RELAXED_KHR};
 
 static VkInstance gInstanceHandle;
 static VkPhysicalDevice gDevice;
 static VkDevice gLogicalDevice;
 static VulkanQueues gVulkanQueues;
 static VkSurfaceKHR gSurface;
+static VkSwapchainKHR gSwapchain;
 static SwapChainDetails gSwapChainDetails;
+std::vector<VkImage> gSwapChainImages;
+std::vector<VkImageView> gSwapImageViews;
 
-static QueueFamilies gQueues;
 static QueueFamilyIndices gq;
 static VkApplicationInfo gInfo;
 
@@ -264,16 +217,136 @@ int validateSwapchainSupport(){
     return 1;
 }
 
-void initSwapchain(){
-  if (!validateSwapchainSupport()){
-    LOG(CRITICAL, "Device does not support required swapchain capabilites!")
-    return;
-  };
+int ChoosePresentationMode(VkPresentModeKHR& presentMode){
+  for(VkPresentModeKHR &mode : gSwapChainDetails.presentModeArr){
+    for(int desiredMode : DesirablePresentationModes){
+      if(mode == desiredMode){
+        presentMode = mode;
+        return 0;
+      }
+    } 
+  }
+  LOG(ERROR, "Unable to find a suitable presentation mode!")
+  return 1;
+}
 
+int chooseSwapExtent(VkExtent2D& extent){
+  int resolutionX;
+  int resolutionY;
+
+  pwGetPresentationSize(resolutionX, resolutionY);
+  
+  extent.height = static_cast<uint32_t>(resolutionX);
+  extent.width = static_cast<uint32_t>(resolutionY);
+
+  extent.height = std::clamp(extent.height, gSwapChainDetails.capabilites.minImageExtent.height, gSwapChainDetails.capabilites.maxImageExtent.height);
+  extent.width = std::clamp(extent.width, gSwapChainDetails.capabilites.minImageExtent.width, gSwapChainDetails.capabilites.maxImageExtent.width);
+  return 0;
+}
+
+int chooseFormatType(VkSurfaceFormatKHR& surfaceFormat){
+  int formatFlag = 0;
+  int colorspaceFlag = 0;
+  int loops = 0;
+  for(VkSurfaceFormatKHR& format : gSwapChainDetails.formatArr){
+    if(format.format == VK_FORMAT_B8G8R8A8_SRGB ){
+      surfaceFormat.format = VK_FORMAT_B8G8R8A8_SRGB;
+      formatFlag = 1;
+    }
+
+   if(format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR){
+      surfaceFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+      colorspaceFlag = 1;
+    }
+
+    if (colorspaceFlag && formatFlag)return 0;
+  }
+
+  LOG(ERROR, "Unable to find a suitable surface format!")
+  return 1;
 }
 
 
+  static VkPresentModeKHR presentMode;
+  static VkSurfaceFormatKHR format;
+  static VkExtent2D extent; 
+  static VkFormat vkFormat;
+void initSwapchain(){
+  if (validateSwapchainSupport()){
+    LOG(CRITICAL, "Device does not support required swapchain capabilites!")
+    return;
+  };
+  
+  if(ChoosePresentationMode(presentMode) || chooseFormatType(format) || chooseSwapExtent(extent)){
+    LOG(CRITICAL, "could not find either presentation mode, extent, or format!")
+    return;
+  }
+
+
+  VkSwapchainCreateInfoKHR ci{};
+  ci.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+  ci.minImageCount = 2;
+  ci.presentMode = presentMode;
+  ci.surface =  gSurface;
+  ci.imageFormat = format.format;
+  ci.imageColorSpace = format.colorSpace;
+  ci.imageExtent =  extent;
+  ci.imageArrayLayers = 1;
+  ci.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+  //TODO: Queue family setup
+  
+  
+  //
+
+  ci.preTransform = gSwapChainDetails.capabilites.currentTransform;
+  ci.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+  ci.clipped = VK_TRUE;
+  ci.oldSwapchain = VK_NULL_HANDLE;
+  VKCALL(vkCreateSwapchainKHR(gLogicalDevice, &ci, nullptr, &gSwapchain))
+
+}
+
+int querySwapImages(){
+  uint32_t imageCount;
+  VKCALL(vkGetSwapchainImagesKHR(gLogicalDevice, gSwapchain, &imageCount, nullptr))
+  gSwapChainImages.reserve(imageCount);
+  VKCALL(vkGetSwapchainImagesKHR(gLogicalDevice, gSwapchain, &imageCount, gSwapChainImages.data()))
+  return 0;
+}
+
+
+void createImageViewObject(){
+  int images =  gSwapChainImages.size();
+  gSwapImageViews.reserve(gSwapChainImages.size());
+  for(int i = 0; i < images; i++){
+  VkImageViewCreateInfo ici{};
+  ici.sType =  VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  ici.image  = gSwapChainImages[i];
+  ici.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  ici.format = vkFormat;
+  ici.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+  ici.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+  ici.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+  ici.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+  ici.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  ici.subresourceRange.baseMipLevel = 0;
+  ici.subresourceRange.levelCount = 1;
+  ici.subresourceRange.baseArrayLayer = 0;
+  ici.subresourceRange.layerCount = 1;
+
+  VKCALL(vkCreateImageView(gLogicalDevice, &ici, nullptr, &gSwapImageViews[i]));
+
+  }
+
+};
+
 void cleanup(){
+  for(VkImageView& view : gSwapImageViews){
+    vkDestroyImageView(gLogicalDevice, view, nullptr);
+  }
+  vkDestroySwapchainKHR(gLogicalDevice, gSwapchain, nullptr);
   vkDestroySurfaceKHR(gInstanceHandle, gSurface, nullptr);
   vkDestroyDevice(gLogicalDevice ,nullptr);
   vkDestroyInstance(gInstanceHandle, nullptr);
@@ -293,6 +366,8 @@ void testTraingle(){
   createLogicalDeviceA();
   pvCreateSurface(gInstanceHandle, &gSurface);
   initSwapchain();
+  querySwapImages();
+  createImageViewObject();
   cleanup();
 }
 
