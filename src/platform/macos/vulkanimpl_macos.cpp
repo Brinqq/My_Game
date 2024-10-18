@@ -5,19 +5,7 @@
 #include "vulkandefines.h"
 
 
-struct ValidationArrays{
-  const std::array<const char*, 1> validationLayers= {
-    "VK_LAYER_KHRONOS_validation"
-  };
 
-  const std::array<const char*, 2> requiredDeviceExtensions = {
-    "VK_KHR_portability_subset",
-    "VK_KHR_swapchain"
-  };
-  
-};
-
-static const ValidationArrays* pValidationArrays;
 
 int pvGetRequiredInstanceExtensions(std::vector<const char*>& ext){
   uint32_t extensionCount;
@@ -37,6 +25,26 @@ int pvGetRequiredInstanceExtensions(std::vector<const char*>& ext){
   return 0;
 }
 
+void pvAppendRequiredDeviceExtension(std::vector<const char*>& extensions){
+  extensions.emplace_back("VK_KHR_portability_subset");
+}
+
+void pvEnableQueues(VulkanContext* context){
+  vkGetDeviceQueue(context->device, context->queueFamilyIndices.graphicQueueFamilyIndex, 0, &context->queues.graphicQueue);
+  vkGetDeviceQueue(context->device, context->queueFamilyIndices.computeQueueFamilyIndex, 0, &context->queues.computeQueue);
+  vkGetDeviceQueue(context->device, context->queueFamilyIndices.tranferQueueFamilyIndex, 0, &context->queues.transferQueue);
+  vkGetDeviceQueue(context->device, context->queueFamilyIndices.presentQueueFamilyIndex, 0, &context->queues.presentQueue);
+}
+
+void pvSetQueueCreateInfo(VkDeviceQueueCreateInfo* pQueues, uint32_t count, const float priorityArray[4]){
+  for(int i = 0; i < count; i++){
+    pQueues[i] = VkDeviceQueueCreateInfo{};
+    pQueues[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    pQueues[i].pQueuePriorities = &priorityArray[i];
+    pQueues[i].queueFamilyIndex = i; 
+    pQueues[i].queueCount = 1;
+  }
+}
   
 int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, QueueFamilyIndices& indexStruct, uint32_t count){
   int x = 0;
@@ -62,10 +70,8 @@ void pvCreateLogicalDevice(){
 }
 
 int pvInitialize(){
-  pValidationArrays = new ValidationArrays();
   return 0;
 }
 
 void pvDeInitialize(){
-  delete(pValidationArrays);
 }

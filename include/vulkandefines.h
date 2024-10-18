@@ -29,6 +29,13 @@ struct VulkanQueues{
   VkQueue presentQueue;
 };
 
+struct PresentationInfo{
+  VkPresentModeKHR presentMode;
+  VkSurfaceFormatKHR format;
+  VkExtent2D extent; 
+  VkFormat vkFormat;
+};
+
 struct VulkanContext{
   VkInstance instanceHandle;
   VkPhysicalDevice physicalDevice;
@@ -38,9 +45,8 @@ struct VulkanContext{
   VkSwapchainKHR swapchain;
   SwapChainDetails swapChainDetails;
   QueueFamilyIndices queueFamilyIndices;
-  VkApplicationInfo Appinfo;
+  PresentationInfo presentationInfo;
 
   std::vector<VkImage> swapChainImages;
   std::vector<VkImageView> swapImageViews;
-
 };
