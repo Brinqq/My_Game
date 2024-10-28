@@ -3,12 +3,9 @@
 // #include "game.h"
 
 #include "application.h"
-#include "threads.h"
 #include "stdio.h"
 
 int main(void){
-  // applicationStart();
-  threadStart();
-
+  applicationStart();
   return 0;
 }

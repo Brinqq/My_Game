@@ -5,13 +5,11 @@
 #include "vulkandefines.h"
 
 
-
-
 int pvGetRequiredInstanceExtensions(std::vector<const char*>& ext){
   uint32_t extensionCount;
   const char** extensionArray = glfwGetRequiredInstanceExtensions(&extensionCount);
   if(extensionCount == 0){
-    LOG(CRITICAL, "GLFW found 0 required instance extensions")
+    LOG_CRITICAL( "GLFW found 0 required instance extensions");
     return 1;
   }
   ext.reserve(extensionCount + 4);

@@ -8,7 +8,7 @@
 
 int Window::validateVulkanLayer(){
   if(glfwVulkanSupported() == GLFW_FALSE){
-    LOG(CRITICAL, "GLFW unable to obtain vulkan support");
+    LOG_CRITICAL("GLFW unable to obtain vulkan support");
     return 0;
   }
 

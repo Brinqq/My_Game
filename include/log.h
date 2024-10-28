@@ -1,66 +1,73 @@
 #pragma once
 #include "global.h"
+#include <stdarg.h>
 
-#define INFO 689
-#define WARN 690
-#define ERROR 691
-#define CRITICAL 692
+inline const char* logArr[6] = {"\033[31mCIRTICAL: ", "\033[33mERROR: ", "\033[32mWARN: ", "\033[36mINFO: ", "\033[34mTRACE: ", "\033[37mDEBUG: "};
 
-#define CRITICAL_OUTPUT_FORMAT "\033[1m\033[31m" << "CRITICAL" << ": " << "\033[0m"
-#define ERROR_OUTPUT_FORMAT "\033[1m\033[33m" << "ERROR" << ": " << "\033[0m"
-#define WARN_OUTPUT_FORMAT "\033[1m\033[34m" << "WARN" << ": " << "\033[0m"
-#define INFO_OUTPUT_FORMAT "\033[1m\033[36m" << "INFO" << ": " << "\033[0m"
-#define UNKNOWN_OUTPUT_FORMAT "\033[1m\033[35m" << "UNKOWN LOG TYPE" << ": " << "\033[0m"
-
-#define LOG(severity, msg)  LOGGING::addLog(severity, msg);
-#define lOG_TICK()
-
-namespace LOGGING{
-
-struct LogMessage{
-  const char* pMsg;
-  int severity;
+enum LogLevel{
+  LOG_LEVEL_CRITICAL = 0,
+  LOG_LEVEL_ERROR = 1,
+  LOG_LEVEL_WARN = 2,
+  LOG_LEVEL_INFO = 3,
+  LOG_LEVEL_TRACE = 4,
+  LOG_LEVEL_DEBUG = 5,
 };
 
-inline std::vector<LogMessage> logArray;
 
-inline void init(){
-  logArray.reserve(40);
+#if __DEBUG
+#define LOG_WARN_ENABLE 1
+#define LOG_INFO_ENABLE 1
+#define LOG_TRACE_ENABLE 1
+#define LOG_DEBUG_ENABLE 1
+#else
+#define LOG_WARN_ENABLE 0
+#define LOG_INFO_ENABLE 0
+#define LOG_TRACE_ENABLE 0
+#define LOG_DEBUG_ENABLE 0
+#endif
+
+#define MAX_LOG_MSG_LENGTH 200 //200 characters max
+
+inline void logToConsole(LogLevel level, const char* pMsg, ...){
+  char msgBuffer[MAX_LOG_MSG_LENGTH];
+  char outMsg[MAX_LOG_MSG_LENGTH];
+  memset(msgBuffer, 0, MAX_LOG_MSG_LENGTH);
+  memset(outMsg, 0, MAX_LOG_MSG_LENGTH);
+  va_list arg;
+  va_start(arg, pMsg);
+  vsnprintf(msgBuffer, MAX_LOG_MSG_LENGTH, pMsg, arg);
+  va_end(arg);
+  snprintf(outMsg, MAX_LOG_MSG_LENGTH, "%s%s\033[0m\n", logArr[level], msgBuffer);
+  printf("%s", outMsg);
 }
 
-inline void addLog(int severity, const char* msg){
-  logArray.emplace_back(LogMessage{msg, severity});
-}
+#define LOG_CRITICAL(msg, ...) logToConsole(LOG_LEVEL_CRITICAL, msg)
+#define LOG_ERROR(msg, ...) logToConsole(LOG_LEVEL_ERROR, msg)
 
-inline void logToStdout(){
-  for(const LogMessage& log: logArray ){
-    switch(log.severity){
-    case INFO:
-      std::cout<< INFO_OUTPUT_FORMAT << log.pMsg << std::endl;
-      break;
-    case WARN:
-      std::cout<< WARN_OUTPUT_FORMAT << log.pMsg << std::endl;
-      break;
-    case ERROR:
-      std::cout<< ERROR_OUTPUT_FORMAT << log.pMsg << std::endl;
-      break;
-    case CRITICAL:
-      std::cout<< CRITICAL_OUTPUT_FORMAT << log.pMsg << std::endl;
-      break;
-    default:
-        std::cout<< UNKNOWN_OUTPUT_FORMAT << log.pMsg << std::endl;
-        break;
-    }
-  }
-}
 
-inline void flushLogs(){
-  logArray.clear();
-}
+#if LOG_WARN_ENABLE
+#define LOG_WARN(msg, ...) logToConsole(LOG_LEVEL_WARN, msg)
+#else
+#define LOG_WARN(msg, ...)
+#endif
 
-inline void update(){
-  logToStdout();
-  flushLogs();
-}
+#if LOG_INFO_ENABLE
+#define LOG_INFO(msg, ...) logToConsole(LOG_LEVEL_INFO, msg)
+#else
+#define LOG_INFO(msg, ...)
+#endif
 
-}
+#if LOG_TRACE_ENABLE
+#define LOG_TRACE(msg, ...) logToConsole(LOG_LEVEL_TRACE, msg)
+#else
+#define LOG_TRACE(msg, ...)
+#endif
+
+#if LOG_DEBUG_ENABLE
+#define LOG_DEBUG(msg, ...) logToConsole(LOG_LEVEL_DEBUG, msg)
+#else
+#define LOG_DEBUG(msg, ...)
+#endif
+
+
+

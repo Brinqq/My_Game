@@ -8,15 +8,11 @@
 static void loop(){
   while(!gExitFlag){
     platformGlobalUpdate();
-    LOGGING::update();
   }
 }
 
 void applicationStart(){
-  LOGGING::init();  
   platformInitialize();
-
   engineInit();
-  LOGGING::update();
   loop();
 }

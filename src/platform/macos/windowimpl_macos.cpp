@@ -15,7 +15,6 @@ struct WindowState;
 static WindowState* pWindowState;
 
 void windowErrorCallback(int errorName, const char* description){
-  LOGGING::addLog(CRITICAL, "failed to create window");
 }
 
 void pwGetPresentationSize(int& x, int& y){

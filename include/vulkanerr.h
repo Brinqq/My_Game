@@ -42,10 +42,10 @@ struct VKMessage{
 inline std::unordered_map<VKError, VKMessage> errorMap;
 
 inline void logOutVKError(VKError err){
-  if(err == VULKAN_REQUIRED_LAYERS_NOT_FOUND){LOG(CRITICAL, "Requested Layers not found!"); programErrorOut();}
-  if(err == VULKAN_NO_SUITABLE_GRAPHIC_DEVICE){LOG(CRITICAL, "Could not find suitable GPU!"); programErrorOut();}
-  if(err == VULKAN_QUEUE_FAMILIY_INITIALIZATION_ERROR){LOG(CRITICAL, "Queue family initialization failed!"); programErrorOut();}
-  if(err == VULKAN_REQUIRED_DEVICE_EXTENSIONS_MISSING){LOG(CRITICAL, "Could not find required device extensions!"); programErrorOut();}
-  if(err == VULKAN_SWAP_CAPABILITIES_NOT_FOUND){LOG(CRITICAL, "L!"); programErrorOut();}
+  if(err == VULKAN_REQUIRED_LAYERS_NOT_FOUND){LOG_CRITICAL("Requested Layers not found!"); programErrorOut();}
+  if(err == VULKAN_NO_SUITABLE_GRAPHIC_DEVICE){LOG_CRITICAL("Could not find suitable GPU!"); programErrorOut();}
+  if(err == VULKAN_QUEUE_FAMILIY_INITIALIZATION_ERROR){LOG_CRITICAL("Queue family initialization failed!"); programErrorOut();}
+  if(err == VULKAN_REQUIRED_DEVICE_EXTENSIONS_MISSING){LOG_CRITICAL("Could not find required device extensions!"); programErrorOut();}
+  if(err == VULKAN_SWAP_CAPABILITIES_NOT_FOUND){LOG_CRITICAL( "L!"); programErrorOut();}
 }
 

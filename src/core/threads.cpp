@@ -8,4 +8,6 @@ void threadStart(){
   pthread_attr_t* attr;
   pthread_attr_getdetachstate(attr, &s);
   printf("here");
+
+  
 }

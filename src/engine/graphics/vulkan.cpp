@@ -79,7 +79,7 @@ VKError validateSwapchainSupport(){
   VKCALL(vkGetPhysicalDeviceSurfacePresentModesKHR(context->physicalDevice, context->surface, &numPresentModes, nullptr))
 
   if(numFormats > FORMATS_PREALLOC_ARRAY_SIZE || numPresentModes > PRESENTMODES_PREALLOC_ARRAY_SIZE){
-    LOG(ERROR, "Format or PresentMode count larger than container size!")
+    LOG_ERROR( "Format or PresentMode count larger than container size!");
   }
 
   VKCALL(vkGetPhysicalDeviceSurfaceFormatsKHR(context->physicalDevice, context->surface, &numFormats, context->swapChainDetails.formatArr.data()))
@@ -181,7 +181,7 @@ int ChoosePresentationMode(VkPresentModeKHR& presentMode){
       }
     } 
   }
-  LOG(ERROR, "Unable to find a suitable presentation mode!")
+  LOG_CRITICAL("Unable to find a suitable presentation mode!");
   return 1;
 }
 
@@ -217,7 +217,7 @@ int chooseFormatType(VkSurfaceFormatKHR& surfaceFormat){
     if (colorspaceFlag && formatFlag)return 0;
   }
 
-  LOG(ERROR, "Unable to find a suitable surface format!")
+  LOG_CRITICAL("Unable to find a suitable surface format!");
   return 1;
 }
 
@@ -232,7 +232,7 @@ void initSwapchain(){
 
   if(ChoosePresentationMode(context->presentationInfo.presentMode) || chooseFormatType(context->presentationInfo.format)
   || chooseSwapExtent(context->presentationInfo.extent)){
-    LOG(CRITICAL, "could not find either presentation mode, extent, or format!")
+    LOG_CRITICAL("could not find either presentation mode, extent, or format!");
     return;
   }
 
@@ -326,7 +326,7 @@ int initializeVulkan(){
 
 void testTraingle(){
   initializeVulkan();
-  testShader(context->device);
+  // testShader(context->device);
   
 }
 

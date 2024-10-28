@@ -38,11 +38,11 @@ VulkShaderProgram testShader(const VkDevice& device){
   std::vector<char> fragBuffer;
 
   if(readInShaderByteCode("bin/shaders/spv/tt_vert.spv", vertBuffer)){
-    LOG(CRITICAL, "Couldnt load file");
+    LOG_CRITICAL("Couldnt load file");
     programErrorOut();
   }
   if(readInShaderByteCode("bin/shaders/spv/tt_frag.spv", fragBuffer)){
-    LOG(CRITICAL, "Couldnt load file");
+    LOG_CRITICAL("Couldnt load file");
     programErrorOut();
   }
 
