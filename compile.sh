@@ -11,7 +11,7 @@ CXX=clang++
 Platform=OSX
 
 CompilerVersion=-std=c++17
-debug=-g0
+debug="-g0 -g"
 release=-g2
 
 OutputDir=bin

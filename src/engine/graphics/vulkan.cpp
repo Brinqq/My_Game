@@ -7,6 +7,7 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 #include "platform.h"
+#include "vulkan_shaderimpl.h"
 
 int getValidatedDeviceExtensions();
 
@@ -317,8 +318,16 @@ int initializeVulkan(){
   return 0;
 }
 
+
+
+//----------------------------------------------
+
+
+
 void testTraingle(){
   initializeVulkan();
+  testShader(context->device);
+  
 }
 
 
