@@ -3,12 +3,12 @@
 // #include "game.h"
 
 #include "application.h"
+#include "threads.h"
 #include "stdio.h"
 
 int main(void){
-  int x;
-  x = 1;
-  printf("here");
   // applicationStart();
+  threadStart();
+
   return 0;
 }
