@@ -1,4 +1,5 @@
 #include "vulkan.h"
+#include "vulkan_pipline.h"
 #include "global.h"
 #include "log.h"
 #include "vulkanerr.h"
@@ -7,7 +8,6 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 #include "platform.h"
-#include "vulkan_shaderimpl.h"
 
 int getValidatedDeviceExtensions();
 
@@ -326,8 +326,7 @@ int initializeVulkan(){
 
 void testTraingle(){
   initializeVulkan();
-  testShader(context->device);
-  
+  initializeVulkanPipeline();
 }
 
 
