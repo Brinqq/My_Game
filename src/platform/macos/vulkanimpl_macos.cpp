@@ -1,6 +1,8 @@
 #include "global.h"
 #include "platform.h"
 #include "GLFW/glfw3.h"
+#include "defines.h"
+#include "log.h"
 
 #include "vulkandefines.h"
 

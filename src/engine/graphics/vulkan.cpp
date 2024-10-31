@@ -326,7 +326,7 @@ int initializeVulkan(){
 
 void testTraingle(){
   initializeVulkan();
-  // testShader(context->device);
+  testShader(context->device);
   
 }
 

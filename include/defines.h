@@ -1,5 +1,8 @@
 #pragma once
+
 #define GAME_NAME "Game"
+#define __DEBUG 1
+#define __GAME_BUILD_DEBUG 1
 
 #define BACKEND_API_VULKAN 
 
@@ -7,3 +10,5 @@
 #error "64 bit required on windows"
 
 #endif
+
+

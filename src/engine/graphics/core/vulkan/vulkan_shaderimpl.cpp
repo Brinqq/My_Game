@@ -14,7 +14,6 @@ static int readInShaderByteCode(const std::string filePath, std::vector<char>& b
   if(!file.is_open()){
     return 1;
   }
-
   size_t bytesSize = (size_t) file.tellg();
   buffer.reserve(bytesSize);
   file.seekg(0);
@@ -27,7 +26,7 @@ VkShaderModule createShaderModule(const VkDevice& device, const std::vector<char
   VkShaderModuleCreateInfo sci{};
   VkShaderModule shader;
   sci.sType =  VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  sci.codeSize = buffer.size();
+  sci.codeSize = buffer.capacity()*sizeof(char);
   sci.pCode = reinterpret_cast<const uint32_t*>(buffer.data());
   vkCreateShaderModule(device, &sci, nullptr, &shader);
   return shader;
@@ -41,15 +40,14 @@ VulkShaderProgram testShader(const VkDevice& device){
     LOG_CRITICAL("Couldnt load file");
     programErrorOut();
   }
+
   if(readInShaderByteCode("bin/shaders/spv/tt_frag.spv", fragBuffer)){
     LOG_CRITICAL("Couldnt load file");
     programErrorOut();
   }
 
   VulkShaderProgram ret;
-  // ret.vertex = createShaderModule(device, vertBuffer);
-  // ret.fragment = createShaderModule(device, fragBuffer);
-  //
-
+  ret.vertex = createShaderModule(device, vertBuffer);
+  ret.fragment = createShaderModule(device, fragBuffer);
   return ret;
 }

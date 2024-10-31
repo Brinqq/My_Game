@@ -1,5 +1,7 @@
 #pragma once
+
 #include "global.h"
+#include "defines.h"
 #include <stdarg.h>
 
 inline const char* logArr[6] = {"\033[31mCIRTICAL: ", "\033[33mERROR: ", "\033[32mWARN: ", "\033[36mINFO: ", "\033[34mTRACE: ", "\033[37mDEBUG: "};
@@ -13,8 +15,7 @@ enum LogLevel{
   LOG_LEVEL_DEBUG = 5,
 };
 
-
-#if __DEBUG
+#if __GAME_BUILD_DEBUG
 #define LOG_WARN_ENABLE 1
 #define LOG_INFO_ENABLE 1
 #define LOG_TRACE_ENABLE 1
@@ -26,7 +27,7 @@ enum LogLevel{
 #define LOG_DEBUG_ENABLE 0
 #endif
 
-#define MAX_LOG_MSG_LENGTH 200 //200 characters max
+#define MAX_LOG_MSG_LENGTH 100 //200 characters max
 
 inline void logToConsole(LogLevel level, const char* pMsg, ...){
   char msgBuffer[MAX_LOG_MSG_LENGTH];
@@ -35,36 +36,38 @@ inline void logToConsole(LogLevel level, const char* pMsg, ...){
   memset(outMsg, 0, MAX_LOG_MSG_LENGTH);
   va_list arg;
   va_start(arg, pMsg);
-  vsnprintf(msgBuffer, MAX_LOG_MSG_LENGTH, pMsg, arg);
+  if(vsnprintf(msgBuffer, MAX_LOG_MSG_LENGTH, pMsg, arg) > MAX_LOG_MSG_LENGTH){
+    printf("LOG ERROR: Log truncated due to reaching maximum character limit, characters allowed per log: %i\n", MAX_LOG_MSG_LENGTH);
+  };
   va_end(arg);
   snprintf(outMsg, MAX_LOG_MSG_LENGTH, "%s%s\033[0m\n", logArr[level], msgBuffer);
   printf("%s", outMsg);
 }
 
-#define LOG_CRITICAL(msg, ...) logToConsole(LOG_LEVEL_CRITICAL, msg)
-#define LOG_ERROR(msg, ...) logToConsole(LOG_LEVEL_ERROR, msg)
+#define LOG_CRITICAL(msg, ...) logToConsole(LOG_LEVEL_CRITICAL, msg, ##__VA_ARGS__)
+#define LOG_ERROR(msg, ...) logToConsole(LOG_LEVEL_ERROR, msg, ##__VA_ARGS__)
 
 
 #if LOG_WARN_ENABLE
-#define LOG_WARN(msg, ...) logToConsole(LOG_LEVEL_WARN, msg)
+#define LOG_WARN(msg, ...) logToConsole(LOG_LEVEL_WARN, msg, ##__VA_ARGS__)
 #else
 #define LOG_WARN(msg, ...)
 #endif
 
 #if LOG_INFO_ENABLE
-#define LOG_INFO(msg, ...) logToConsole(LOG_LEVEL_INFO, msg)
+#define LOG_INFO(msg, ...) logToConsole(LOG_LEVEL_INFO, msg, ##__VA_ARGS__)
 #else
 #define LOG_INFO(msg, ...)
 #endif
 
 #if LOG_TRACE_ENABLE
-#define LOG_TRACE(msg, ...) logToConsole(LOG_LEVEL_TRACE, msg)
+#define LOG_TRACE(msg, ...) logToConsole(LOG_LEVEL_TRACE, msg, ##__VA_ARGS__)
 #else
-#define LOG_TRACE(msg, ...)
+#define LOG_TRACE(msg, ...) 
 #endif
 
 #if LOG_DEBUG_ENABLE
-#define LOG_DEBUG(msg, ...) logToConsole(LOG_LEVEL_DEBUG, msg)
+#define LOG_DEBUG(msg, ...) logToConsole(LOG_LEVEL_DEBUG, msg, ##__VA_ARGS__)
 #else
 #define LOG_DEBUG(msg, ...)
 #endif

@@ -3,6 +3,7 @@
 #include "global.h"
 #include "window.h"
 #include "GLFW/glfw3.h"
+#include "log.h"
 
 // TODO: Handle multiple possible errors when between vulkan and glfw
 
