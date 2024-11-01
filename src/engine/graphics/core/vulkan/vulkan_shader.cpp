@@ -1,7 +1,7 @@
 
 #include "vulkan/vulkan.h"
 #include "vulkanerr.h"
-#include "vulkan_shaderimpl.h"
+#include "vulkan_shader.h"
 #include "error.h"
 #include "log.h"
 
@@ -50,4 +50,9 @@ VulkShaderProgram testShader(const VkDevice& device){
   ret.vertex = createShaderModule(device, vertBuffer);
   ret.fragment = createShaderModule(device, fragBuffer);
   return ret;
+}
+
+
+void VulkanShaderDestroy(const VkDevice& device, VkShaderModule& shader){
+  vkDestroyShaderModule(device, shader, nullptr);
 }

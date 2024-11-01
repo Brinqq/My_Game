@@ -326,7 +326,7 @@ int initializeVulkan(){
 
 void testTraingle(){
   initializeVulkan();
-  initializeVulkanPipeline();
+  initializeVulkanPipeline(context->device);
 }
 
 

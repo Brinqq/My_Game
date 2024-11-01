@@ -9,5 +9,6 @@ struct VulkShaderProgram{
 
 
 VulkShaderProgram testShader(const VkDevice& device);
+void VulkanShaderDestroy();
 
 

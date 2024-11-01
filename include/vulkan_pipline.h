@@ -1,3 +1,5 @@
 #pragma once
 
-void initializeVulkanPipeline();
+#include "vulkandefines.h"
+
+void initializeVulkanPipeline(const VkDevice& device);
