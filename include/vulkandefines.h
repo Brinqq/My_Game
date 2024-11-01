@@ -38,6 +38,7 @@ struct PresentationInfo{
 
 struct VulkanContext{
   VkPipelineLayout pipelineLayout;
+  VkPipeline pipeline;
   VkRenderPass renderPass;
   VkInstance instanceHandle;
   VkPhysicalDevice physicalDevice;

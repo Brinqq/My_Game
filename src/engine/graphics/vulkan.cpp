@@ -321,14 +321,11 @@ int initializeVulkan(){
 
 
 
-//----------------------------------------------
-
-
-
 void testTraingle(){
   initializeVulkan();
-  initializeVulkanPipeline(context->device);
   initializeRenderpass(*context);
+  initializeVulkanPipeline(context->device, context->renderPass, context->pipeline);
+  
 }
 
 

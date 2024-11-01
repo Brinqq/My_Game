@@ -28,7 +28,7 @@ static void shader(){
   gPipelineObjects.shader = testShader(*gDeviceRef);
 }
 
-void initializeVulkanPipeline(const VkDevice& device){
+void initializeVulkanPipeline(const VkDevice& device, const VkRenderPass& renderPass, VkPipeline& pipeline){
   gDeviceRef = &device;
   shader();
 
@@ -109,7 +109,24 @@ void initializeVulkanPipeline(const VkDevice& device){
   multisampling.alphaToOneEnable = VK_FALSE;
 
   //Color blending and depth stencil goes here
-  
+  VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+  colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+  colorBlendAttachment.blendEnable = VK_FALSE;
+  colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+  colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+  colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
+  colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+  colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+  colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+
+
+  VkPipelineColorBlendStateCreateInfo colorStateInfo{};
+  colorStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+  colorStateInfo.logicOpEnable = VK_FALSE;
+  colorStateInfo.logicOp = VK_LOGIC_OP_COPY;
+  colorStateInfo.attachmentCount = 1;
+  colorStateInfo.pAttachments = &colorBlendAttachment;
+
   //pipeline layout
   VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -118,10 +135,9 @@ void initializeVulkanPipeline(const VkDevice& device){
   pipelineLayoutInfo.pushConstantRangeCount = 0;
   pipelineLayoutInfo.pPushConstantRanges = nullptr;
   
-  if(vkCreatePipelineLayout(*gDeviceRef, &pipelineLayoutInfo, nullptr, &gPipelineLayout) != VK_SUCCESS){
-    LOG_ERROR("fuck");
+  VKCALL(vkCreatePipelineLayout(*gDeviceRef, &pipelineLayoutInfo, nullptr, &gPipelineLayout))
+
   }
 
 
 
-}
