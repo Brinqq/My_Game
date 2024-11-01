@@ -3,6 +3,8 @@
 #include "global.h"
 #include "error.h"
 
+
+
 enum VKError{
   VULKAN_SUCCESS = 0,
   VULKAN_REQUIRED_LAYERS_NOT_FOUND = 23,
@@ -13,6 +15,9 @@ enum VKError{
 };
 
 #if __DEBUG
+
+#define VULKAN_VALIDATION_OUPUT_FILE "debug/VULKAN_VALIDATION_OUPUT_FILE.txt"
+
 inline VkResult gVkResult;
 inline VKError code;
 
@@ -47,5 +52,7 @@ inline void logOutVKError(VKError err){
   if(err == VULKAN_QUEUE_FAMILIY_INITIALIZATION_ERROR){LOG_CRITICAL("Queue family initialization failed!"); programErrorOut();}
   if(err == VULKAN_REQUIRED_DEVICE_EXTENSIONS_MISSING){LOG_CRITICAL("Could not find required device extensions!"); programErrorOut();}
   if(err == VULKAN_SWAP_CAPABILITIES_NOT_FOUND){LOG_CRITICAL( "L!"); programErrorOut();}
+  LOG_CRITICAL("Unkown error");
+  programErrorOut();
 }
 

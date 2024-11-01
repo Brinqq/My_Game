@@ -8,6 +8,7 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 #include "platform.h"
+#include "vulkan_renderpass.h"
 
 int getValidatedDeviceExtensions();
 
@@ -327,6 +328,7 @@ int initializeVulkan(){
 void testTraingle(){
   initializeVulkan();
   initializeVulkanPipeline(context->device);
+  initializeRenderpass(*context);
 }
 
 

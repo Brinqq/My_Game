@@ -1,4 +1,6 @@
 #include "global.h"
+#include "defines.h"
+
 #include "application.h"
 #include "engine.h"
 #include "game.h"
