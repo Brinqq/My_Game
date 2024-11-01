@@ -64,7 +64,7 @@ void initializeVulkanPipeline(const VkDevice& device, const VkRenderPass& render
   VkPipelineInputAssemblyStateCreateInfo ias{};
   ias.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
   ias.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-  ias.primitiveRestartEnable = VK_TRUE;
+  ias.primitiveRestartEnable = VK_FALSE;
 
   //view port and sissor initalization
   VkViewport vp{};
@@ -137,7 +137,31 @@ void initializeVulkanPipeline(const VkDevice& device, const VkRenderPass& render
   
   VKCALL(vkCreatePipelineLayout(*gDeviceRef, &pipelineLayoutInfo, nullptr, &gPipelineLayout))
 
+  VkGraphicsPipelineCreateInfo pipelineInfo{};
+  pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+  pipelineInfo.stageCount = 2;
+  pipelineInfo.pStages = gShaderStageInfo;
+  pipelineInfo.pVertexInputState = &vis;
+  pipelineInfo.pInputAssemblyState = &ias;
+  pipelineInfo.pViewportState = &vpc;
+  pipelineInfo.pRasterizationState = &rsc;
+  pipelineInfo.pMultisampleState = &multisampling;
+  pipelineInfo.pColorBlendState = &colorStateInfo;
+  pipelineInfo.pDepthStencilState = nullptr;
+  pipelineInfo.pDynamicState = &pds;
+  pipelineInfo.layout = gPipelineLayout;
+  pipelineInfo.renderPass = renderPass;
+  pipelineInfo.subpass = 0;
+  pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+  pipelineInfo.basePipelineIndex = 1;
+  VKCALL(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1 , &pipelineInfo, nullptr, &pipeline));
+
   }
+
+void destroyPipeline(const VkDevice& device, const VkPipeline& pipeline){
+  
+  vkDestroyPipeline(device, pipeline, nullptr);
+}
 
 
 
