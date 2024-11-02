@@ -9,6 +9,7 @@
 #include "vulkan/vulkan_core.h"
 #include "platform.h"
 #include "vulkan_renderpass.h"
+#include "vulkan_framebuffer.h"
 
 int getValidatedDeviceExtensions();
 
@@ -263,33 +264,34 @@ void initSwapchain(){
 }
 
 int querySwapImages(){
-uint32_t imageCount;
-VKCALL(vkGetSwapchainImagesKHR(context->device, context->swapchain, &imageCount, nullptr))
+  uint32_t imageCount;
+  VKCALL(vkGetSwapchainImagesKHR(context->device, context->swapchain, &imageCount, nullptr))
   context->swapChainImages.reserve(imageCount);
-VKCALL(vkGetSwapchainImagesKHR(context->device, context->swapchain, &imageCount, context->swapChainImages.data()))
+  VKCALL(vkGetSwapchainImagesKHR(context->device, context->swapchain, &imageCount, context->swapChainImages.data()))
   return 0;
   }
 
 void createImageViewObject(){
-  int images =  context->swapChainImages.size();
-  context->swapImageViews.reserve(context->swapChainImages.size());
-  for(int i = 0; i < images; i++){
-  VkImageViewCreateInfo ici{};
-  ici.sType =  VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-  ici.image  = context->swapChainImages[i];
-  ici.viewType = VK_IMAGE_VIEW_TYPE_2D;
-  ici.format = context->presentationInfo.vkFormat;
-  ici.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-  ici.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-  ici.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-  ici.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-  ici.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-  ici.subresourceRange.baseMipLevel = 0;
-  ici.subresourceRange.levelCount = 1;
-  ici.subresourceRange.baseArrayLayer = 0;
-  ici.subresourceRange.layerCount = 1;
+  int images =  context->swapChainImages.capacity();
+  context->swapImageViews.reserve(images);
 
-  VKCALL(vkCreateImageView(context->device, &ici, nullptr, &context->swapImageViews[i]));
+  for(int i = 0; i < images; i++){
+    VkImageViewCreateInfo ici{};
+    ici.sType =  VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    ici.image  = context->swapChainImages[i];
+    ici.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    ici.format = context->presentationInfo.format.format;
+    ici.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    ici.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    ici.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    ici.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+    ici.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    ici.subresourceRange.baseMipLevel = 0;
+    ici.subresourceRange.levelCount = 1;
+    ici.subresourceRange.baseArrayLayer = 0;
+    ici.subresourceRange.layerCount = 1;
+
+    VKCALL(vkCreateImageView(context->device, &ici, nullptr, &context->swapImageViews[i]));
   }
 
 };
@@ -320,12 +322,80 @@ int initializeVulkan(){
 }
 
 
+VkCommandPool gCommandPool{};
+VkCommandBuffer gCommandBuffer{};
+void commandPoolAndBuffer(){
+  
+  VkCommandPoolCreateInfo commandPoolInfo{};
+  VkCommandBufferAllocateInfo commandBufferInfo{};
+  commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+  commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+  commandPoolInfo.queueFamilyIndex = context->queueFamilyIndices.graphicQueueFamilyIndex;
+
+VKCALL(vkCreateCommandPool(context->device, &commandPoolInfo, nullptr, &gCommandPool))
+  commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  commandBufferInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  commandBufferInfo.commandPool = gCommandPool;
+  commandBufferInfo.commandBufferCount = 1;
+  LOG_INFO("Graphic Command Pool initialized successfuly.");
+  VKCALL(vkAllocateCommandBuffers(context->device, &commandBufferInfo, &gCommandBuffer))
+  LOG_INFO("Allocation of command buffer successful");
+}
+
+void beginCommandBuffer(){
+  VkCommandBufferBeginInfo beginInfo{};
+  beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  beginInfo.flags = 0; // Optional
+  beginInfo.pInheritanceInfo = nullptr; // Optional`kk`
+  VKCALL(vkBeginCommandBuffer(gCommandBuffer, &beginInfo))
+
+  VkRenderPassBeginInfo renderPassInfo{};
+  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+  renderPassInfo.renderPass = context->renderPass;
+  renderPassInfo.framebuffer = gFramebuffers[0];
+  renderPassInfo.renderArea.offset = {0, 0};
+  renderPassInfo.renderArea.extent = context->presentationInfo.extent;
+
+  VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+  renderPassInfo.clearValueCount = 1;
+  renderPassInfo.pClearValues = &clearColor;
+
+  vkCmdBeginRenderPass(gCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+  vkCmdBindPipeline(gCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context->pipeline);
+
+  VkViewport viewport{};
+  viewport.x = 0.0f;
+  viewport.y = 0.0f;
+  viewport.width = static_cast<float>(context->presentationInfo.extent.width);
+  viewport.height = static_cast<float>(context->presentationInfo.extent.height);
+  viewport.minDepth = 0.0f;
+  viewport.maxDepth = 1.0f;
+  vkCmdSetViewport(gCommandBuffer, 0, 1, &viewport);
+
+  VkRect2D scissor{};
+  scissor.offset = {0, 0};
+  scissor.extent = context->presentationInfo.extent;
+  vkCmdSetScissor(gCommandBuffer, 0, 1, &scissor);
+  vkCmdDraw(gCommandBuffer, 3, 1, 0, 0);
+  vkCmdEndRenderPass(gCommandBuffer);
+  VKCALL(vkEndCommandBuffer(gCommandBuffer))
+
+
+
+
+}
+
+void vulkanDrawFrame(){
+
+}
 
 void testTraingle(){
   initializeVulkan();
   initializeRenderpass(*context);
   initializeVulkanPipeline(context->device, context->renderPass, context->pipeline);
-  
+  learnFrameBuffer(*context);
+  commandPoolAndBuffer();
+  beginCommandBuffer();
 }
 
 
