@@ -109,28 +109,26 @@ int isDesirableGPU(VkPhysicalDevice device){
 
 void createVulkanInstance(){
   VKCHECK(validateLayerAvailability());
+  VkApplicationInfo applicationInfo{};
+  VkInstanceCreateInfo instanceInfo{};
 
-  VkApplicationInfo aci{};
-  VkInstanceCreateInfo ici{};
+  applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO; 
+  applicationInfo.pApplicationName = GAME_NAME;
+  applicationInfo.pEngineName = "none";
+  applicationInfo.apiVersion = VK_API_VERSION_1_0;
+  applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+  applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 
-  aci.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO; 
-  aci.pApplicationName = "Game";
-  aci.pEngineName = "none";
-  aci.apiVersion = VK_API_VERSION_1_0;
-  aci.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-  aci.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-  ici.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-  ici.pApplicationInfo = &aci;
-  ici.enabledLayerCount = requiredVulkanLayers.size();
-  ici.ppEnabledLayerNames = requiredVulkanLayers.data();
-  ici.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-  
+  instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+  instanceInfo.pApplicationInfo = &applicationInfo;
+  instanceInfo.enabledLayerCount = requiredVulkanLayers.size();
+  instanceInfo.ppEnabledLayerNames = requiredVulkanLayers.data();
+  instanceInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+
   std::vector<const char*> extensions{};
   pvGetRequiredInstanceExtensions(extensions);
-
   ici.enabledExtensionCount = (uint32_t)extensions.size();
   ici.ppEnabledExtensionNames = extensions.data();
-
   VKCALL(vkCreateInstance(&ici, nullptr, &context->instanceHandle))
 }
 
@@ -513,6 +511,43 @@ void vulkanDrawFrame(){
 }
 
 //---------------------------------------------------------------------
+
+
+#include "vulkan_layer.h"
+
+static VKError VulkanInstanceCreate(){
+  VKCHECK(validateLayerAvailability());
+  VkApplicationInfo applicationInfo{};
+  VkInstanceCreateInfo instanceInfo{};
+
+  applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO; 
+  applicationInfo.pApplicationName = GAME_NAME;
+  applicationInfo.pEngineName = "none";
+  applicationInfo.apiVersion = VK_API_VERSION_1_0;
+  applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+  applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+
+  instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+  instanceInfo.pApplicationInfo = &applicationInfo;
+  instanceInfo.enabledLayerCount = requiredVulkanLayers.size();
+  instanceInfo.ppEnabledLayerNames = requiredVulkanLayers.data();
+  instanceInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+
+  std::vector<const char*> extensions{};
+  pvGetRequiredInstanceExtensions(extensions);
+  instanceInfo.enabledExtensionCount = (uint32_t)extensions.size();
+  instanceInfo.ppEnabledExtensionNames = extensions.data();
+  VKCALL(vkCreateInstance(&instanceInfo, nullptr, &context->instanceHandle))
+}
+
+int vulkanInitialize(){
+  VKCHECK(VulkanInstanceCreate())
+  
+  return 1;
+
+}
+
+
 
 
 
