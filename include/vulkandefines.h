@@ -8,6 +8,9 @@
 #define FORMATS_PREALLOC_ARRAY_SIZE 100
 #define PRESENTMODES_PREALLOC_ARRAY_SIZE 5
 
+inline VkVertexInputBindingDescription gVertexDescription{};
+inline VkVertexInputAttributeDescription gAttribDescription{};
+
 struct QueueFamilyIndices{
   uint32_t graphicQueueFamilyIndex;
   uint32_t computeQueueFamilyIndex;

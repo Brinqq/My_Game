@@ -11,6 +11,16 @@
 #include "vulkan_renderpass.h"
 #include "vulkan_framebuffer.h"
 
+#include "primitives.h"
+
+
+static const Vertex gVertices[3]{
+  {0.0f, 0.5f, 0.0f},
+  {0.5f, -0.5f, 0.0f},
+  {-0.5f, -0.5f, 0.0f},
+};
+
+
 int getValidatedDeviceExtensions();
 
 //Sorted from most Desirable to least
@@ -342,7 +352,7 @@ VKCALL(vkCreateCommandPool(context->device, &commandPoolInfo, nullptr, &gCommand
   LOG_INFO("Allocation of command buffer successful");
 }
 
-void beginCommandBuffer(){
+void beginCommandBuffer(uint32_t imageIndex){
   VkCommandBufferBeginInfo beginInfo{};
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   beginInfo.flags = 0; // Optional
@@ -352,11 +362,11 @@ void beginCommandBuffer(){
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   renderPassInfo.renderPass = context->renderPass;
-  renderPassInfo.framebuffer = gFramebuffers[0];
+  renderPassInfo.framebuffer = gFramebuffers[imageIndex];
   renderPassInfo.renderArea.offset = {0, 0};
   renderPassInfo.renderArea.extent = context->presentationInfo.extent;
 
-  VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+  VkClearValue clearColor = {{{0.009f, 0.00f, 0.2f, 1.0f}}};
   renderPassInfo.clearValueCount = 1;
   renderPassInfo.pClearValues = &clearColor;
 
@@ -380,24 +390,129 @@ void beginCommandBuffer(){
   vkCmdEndRenderPass(gCommandBuffer);
   VKCALL(vkEndCommandBuffer(gCommandBuffer))
 
-
-
-
 }
 
-void vulkanDrawFrame(){
+VkSemaphore gImageStatus;
+VkSemaphore gRenderStatus;
+VkFence gInFlightFence;
 
+void initializeSyncObjects(){
+  VkFenceCreateInfo fenceInfo{};
+  VkSemaphoreCreateInfo renderSemaphoreInfo{};
+  VkSemaphoreCreateInfo imageSemaphoreInfo{};
+  fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  fenceInfo.flags= VK_FENCE_CREATE_SIGNALED_BIT;
+  renderSemaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+  imageSemaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+  VKCALL(vkCreateSemaphore(context->device, &renderSemaphoreInfo, nullptr, &gRenderStatus))
+  VKCALL(vkCreateSemaphore(context->device, &imageSemaphoreInfo, nullptr, &gImageStatus))
+  VKCALL(vkCreateFence(context->device, &fenceInfo, nullptr, &gInFlightFence))
+  LOG_INFO("Sync object initialized");
 }
+
+
+
+static VkBuffer gVertexBuffer;
+static VkDeviceMemory gVertexBufferMemory;
+static VkMemoryRequirements gMemReq;
+static VkPhysicalDeviceMemoryProperties gMemProperties;
+
+
+void createVertexDescription(){
+  gVertexDescription.binding = 0;
+  gVertexDescription.stride = sizeof(Vertex);
+  gVertexDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+  gAttribDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+  gAttribDescription.binding = 0;
+  gAttribDescription.offset = 0;
+  gAttribDescription.location = 0;
+}
+
+static uint32_t findMemoryReq(uint32_t typeFilter, VkMemoryPropertyFlags properties){
+  
+  for(uint32_t i = 0; i < gMemProperties.memoryTypeCount; i++){
+    if((typeFilter & (1<< i)) && (gMemProperties.memoryTypes[i].propertyFlags & properties) == properties){
+      return i;
+    }
+  }
+  LOG_ERROR("No suitable memory type found for buffer");
+  return 1;
+}
+
+VkBufferCreateInfo vertexBufferInfo{};
+void createVertexBuffer(){
+  vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+  vertexBufferInfo.size = sizeof(Vertex)*3;
+  vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+  vertexBufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  VKCALL(vkCreateBuffer(context->device, &vertexBufferInfo, nullptr, &gVertexBuffer))
+  vkGetBufferMemoryRequirements(context->device, gVertexBuffer, &gMemReq);
+  vkGetPhysicalDeviceMemoryProperties(context->physicalDevice, &gMemProperties);
+  VkMemoryAllocateInfo allocInfo{};
+  allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+  allocInfo.allocationSize = gMemReq.size;
+  allocInfo.memoryTypeIndex = findMemoryReq(gMemReq.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+  VKCALL(vkAllocateMemory(context->device, &allocInfo, nullptr, &gVertexBufferMemory ))
+}
+
 
 void testTraingle(){
   initializeVulkan();
   initializeRenderpass(*context);
+  createVertexDescription();
   initializeVulkanPipeline(context->device, context->renderPass, context->pipeline);
+  createVertexBuffer();
   learnFrameBuffer(*context);
   commandPoolAndBuffer();
-  beginCommandBuffer();
+  initializeSyncObjects();
+  VKCALL(vkBindBufferMemory(context->device, gVertexBuffer, gVertexBufferMemory, 0))
+  void* data;
+  vkMapMemory(context->device, gVertexBufferMemory, 0, vertexBufferInfo.size, 0, &data);
+  memcpy(data, gVertices, (size_t) vertexBufferInfo.size);
+  vkUnmapMemory(context->device, gVertexBufferMemory);
+
 }
 
+void vulkanDrawFrame(){
+  uint32_t imageIndex;
+  vkWaitForFences(context->device, 1, &gInFlightFence, VK_TRUE, UINT64_MAX);
+  vkResetFences(context->device, 1, &gInFlightFence);
+  vkAcquireNextImageKHR(context->device, context->swapchain, UINT64_MAX, gImageStatus, VK_NULL_HANDLE, &imageIndex);
+  vkResetCommandBuffer(gCommandBuffer, 0);
+  beginCommandBuffer(imageIndex);
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  VkSemaphore waitSemaphores[] = {gImageStatus};
+  VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  submitInfo.waitSemaphoreCount = 1;
+  submitInfo.pWaitSemaphores = waitSemaphores;
+  submitInfo.pWaitDstStageMask = waitStages;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &gCommandBuffer;
+  VkSemaphore signalSemaphores[] = {gRenderStatus};
+  submitInfo.signalSemaphoreCount = 1;
+  submitInfo.pSignalSemaphores = signalSemaphores;
+  VKCALL(vkQueueSubmit(context->queues.graphicQueue, 1, &submitInfo, gInFlightFence))
+  VkSubpassDependency dependency{};
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dependency.dstSubpass = 0;
+  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.srcAccessMask = 0;
+  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+  VkPresentInfoKHR presentInfo{};
+  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  presentInfo.waitSemaphoreCount = 1;
+  presentInfo.pWaitSemaphores = signalSemaphores;
+  VkSwapchainKHR swapChains[] = {context->swapchain};
+  presentInfo.swapchainCount = 1;
+  presentInfo.pSwapchains = swapChains;
+  presentInfo.pImageIndices = &imageIndex;
+  presentInfo.pResults = nullptr; // Optional
+  vkQueuePresentKHR(context->queues.presentQueue, &presentInfo);
+}
+
+//---------------------------------------------------------------------
 
 
 

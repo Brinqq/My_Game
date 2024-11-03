@@ -50,6 +50,10 @@ CleanBuild=0
 DawrinFrameworks="-framework IOKit -framework CoreVideo -framework Cocoa -framework Metal -framework CoreFoundation -framework QuartzCore"
 
 
+#TODO: implement cland compile info
+ExportClangdInfo=0;
+
+
 F={}
 
 if [ "$Platform" == "OSX" ]; then

@@ -55,9 +55,9 @@ void initializeVulkanPipeline(const VkDevice& device, const VkRenderPass& render
   //Vertex input stage
   VkPipelineVertexInputStateCreateInfo vis{};
   vis.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  vis.pVertexBindingDescriptions = nullptr;
+  vis.pVertexBindingDescriptions = &gVertexDescription;
   vis.vertexBindingDescriptionCount = 0;
-  vis.pVertexAttributeDescriptions = nullptr;
+  vis.pVertexAttributeDescriptions = &gAttribDescription;
   vis.vertexAttributeDescriptionCount = 0;
 
   //Input assembler stage

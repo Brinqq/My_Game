@@ -9,6 +9,7 @@
 static void loop(){
   while(!gExitFlag){
     platformGlobalUpdate();
+    testUpdate();
   }
 }
 

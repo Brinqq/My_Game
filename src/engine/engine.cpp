@@ -8,6 +8,7 @@ void engineInit(){
 }
 
 void testUpdate(){
+  vulkanDrawFrame();
 
 }
 
