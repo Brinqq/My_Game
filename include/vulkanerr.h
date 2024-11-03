@@ -23,6 +23,7 @@ inline VKError code;
 
 #define VKCALL(x) gVkResult = x; if(gVkResult != VK_SUCCESS){throwVkError(gVkResult, __LINE__, __FILE__);}
 #define VKCHECK(x) code = x; if( code != VULKAN_SUCCESS){logOutVKError(code);};
+#define VKCH(x) code = x; if( code != VULKAN_SUCCESS){logOutVKError(code); return 1;};
 
 inline void throwVkError(VkResult code, int line, const char* file){
 printf("\033[31m\033[1mVKERROR:\033[0m%i \033[1m\033[32mFILE:\033[0m%s \033[33m\033[1mLINE:\033[0m%i\n",code, file, line );
@@ -47,10 +48,10 @@ struct VKMessage{
 inline std::unordered_map<VKError, VKMessage> errorMap;
 
 inline void logOutVKError(VKError err){
-  if(err == VULKAN_REQUIRED_LAYERS_NOT_FOUND){LOG_CRITICAL("Requested Layers not found!"); programErrorOut();}
-  if(err == VULKAN_NO_SUITABLE_GRAPHIC_DEVICE){LOG_CRITICAL("Could not find suitable GPU!"); programErrorOut();}
-  if(err == VULKAN_QUEUE_FAMILIY_INITIALIZATION_ERROR){LOG_CRITICAL("Queue family initialization failed!"); programErrorOut();}
-  if(err == VULKAN_REQUIRED_DEVICE_EXTENSIONS_MISSING){LOG_CRITICAL("Could not find required device extensions!"); programErrorOut();}
+  if(err == VULKAN_REQUIRED_LAYERS_NOT_FOUND){LOG_CRITICAL("Requested Layers not found!");}
+  if(err == VULKAN_NO_SUITABLE_GRAPHIC_DEVICE){LOG_CRITICAL("Could not find suitable GPU!");}
+  if(err == VULKAN_QUEUE_FAMILIY_INITIALIZATION_ERROR){LOG_CRITICAL("Queue family initialization failed!");}
+  if(err == VULKAN_REQUIRED_DEVICE_EXTENSIONS_MISSING){LOG_CRITICAL("Could not find required device extensions!");}
   if(err == VULKAN_SWAP_CAPABILITIES_NOT_FOUND){LOG_CRITICAL( "L!"); programErrorOut();}
   LOG_CRITICAL("Unkown error");
   programErrorOut();

@@ -3,6 +3,7 @@
 #include "global.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkanerr.h"
 
 
 #define FORMATS_PREALLOC_ARRAY_SIZE 100

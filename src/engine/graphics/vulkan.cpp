@@ -58,6 +58,7 @@ VKError validateLayerAvailability(){
     }
   }
 }
+
 if(layersFound == requestedLayers){return VULKAN_SUCCESS;}
   return VULKAN_REQUIRED_LAYERS_NOT_FOUND;
 }
@@ -127,9 +128,9 @@ void createVulkanInstance(){
 
   std::vector<const char*> extensions{};
   pvGetRequiredInstanceExtensions(extensions);
-  ici.enabledExtensionCount = (uint32_t)extensions.size();
-  ici.ppEnabledExtensionNames = extensions.data();
-  VKCALL(vkCreateInstance(&ici, nullptr, &context->instanceHandle))
+  instanceInfo.enabledExtensionCount = (uint32_t)extensions.size();
+  instanceInfo.ppEnabledExtensionNames = extensions.data();
+  VKCALL(vkCreateInstance(&instanceInfo, nullptr, &context->instanceHandle))
 }
 
 VKError initGPUContext(){
@@ -512,11 +513,12 @@ void vulkanDrawFrame(){
 
 //---------------------------------------------------------------------
 
-
 #include "vulkan_layer.h"
 
-static VKError VulkanInstanceCreate(){
-  VKCHECK(validateLayerAvailability());
+VkInstance a;
+
+static int VulkanInstanceCreate(){
+  VKCHECK(vulkanValidateLayers());
   VkApplicationInfo applicationInfo{};
   VkInstanceCreateInfo instanceInfo{};
 
@@ -529,21 +531,27 @@ static VKError VulkanInstanceCreate(){
 
   instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   instanceInfo.pApplicationInfo = &applicationInfo;
-  instanceInfo.enabledLayerCount = requiredVulkanLayers.size();
-  instanceInfo.ppEnabledLayerNames = requiredVulkanLayers.data();
+  instanceInfo.enabledLayerCount = gRequiredInstanceLayers.layerCount;
+  instanceInfo.ppEnabledLayerNames = gRequiredInstanceLayers.layers;
   instanceInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
   std::vector<const char*> extensions{};
   pvGetRequiredInstanceExtensions(extensions);
   instanceInfo.enabledExtensionCount = (uint32_t)extensions.size();
   instanceInfo.ppEnabledExtensionNames = extensions.data();
-  VKCALL(vkCreateInstance(&instanceInfo, nullptr, &context->instanceHandle))
+  VKCALL(vkCreateInstance(&instanceInfo, nullptr, &a))
+  LOG_INFO("Vulkan Instance created");
+  return 0;
+}
+
+void vulkanDeinitializee(){
+  LOG_INFO("Vulkan backend shutting down");
+
 }
 
 int vulkanInitialize(){
-  VKCHECK(VulkanInstanceCreate())
-  
-  return 1;
+  if(VulkanInstanceCreate()){return 1;}
+  return 0;
 
 }
 

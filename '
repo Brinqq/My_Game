@@ -1,0 +1,10 @@
+#pragma once
+
+#include "defines.h"
+#include "vulkandefines.h"
+
+#if __DEBUG
+
+#endif
+
+inline VKError vulkanValidateLayers();
