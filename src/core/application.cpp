@@ -17,4 +17,6 @@ void applicationStart(){
   platformInitialize();
   engineInit();
   loop();
+  //cleanup()
+  engineDeinitialize();
 }

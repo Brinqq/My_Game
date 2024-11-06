@@ -514,11 +514,11 @@ void vulkanDrawFrame(){
 //---------------------------------------------------------------------
 
 #include "vulkan_layer.h"
+#include "vulkan_extensions.h"
+#include "vulkan_device.h"
 
-VkInstance a;
 
-static int VulkanInstanceCreate(){
-  VKCHECK(vulkanValidateLayers());
+static int VulkanInstanceCreate(VkInstance& instance){
   VkApplicationInfo applicationInfo{};
   VkInstanceCreateInfo instanceInfo{};
 
@@ -535,24 +535,26 @@ static int VulkanInstanceCreate(){
   instanceInfo.ppEnabledLayerNames = gRequiredInstanceLayers.layers;
   instanceInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
-  std::vector<const char*> extensions{};
-  pvGetRequiredInstanceExtensions(extensions);
-  instanceInfo.enabledExtensionCount = (uint32_t)extensions.size();
-  instanceInfo.ppEnabledExtensionNames = extensions.data();
-  VKCALL(vkCreateInstance(&instanceInfo, nullptr, &a))
+  instanceInfo.enabledExtensionCount = (uint32_t)gVulkanExtensions.instanceExtensions.size();
+  instanceInfo.ppEnabledExtensionNames = gVulkanExtensions.instanceExtensions.data();
+  VKCALL(vkCreateInstance(&instanceInfo, nullptr, &instance))
   LOG_INFO("Vulkan Instance created");
   return 0;
 }
 
 void vulkanDeinitializee(){
   LOG_INFO("Vulkan backend shutting down");
+  vkDestroyInstance(pVulkan->instance, nullptr);
+  free(pVulkan);
 
 }
 
 int vulkanInitialize(){
-  if(VulkanInstanceCreate()){return 1;}
+  pVulkan = (VulkanState*)malloc(sizeof(VulkanState));
+  VKCH(vulkanLayersInitialize());
+  VKCH(VulkanInitDeviceAndInstanceEXT())
+  if(VulkanInstanceCreate(pVulkan->instance)){return 0;}
   return 0;
-
 }
 
 

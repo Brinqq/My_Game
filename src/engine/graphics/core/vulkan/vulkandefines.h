@@ -4,6 +4,8 @@
 
 #include "vulkan/vulkan.h"
 #include "vulkanerr.h"
+#include "vulkan_device.h"
+
 
 
 #define FORMATS_PREALLOC_ARRAY_SIZE 100
@@ -57,3 +59,12 @@ struct VulkanContext{
   std::vector<VkImage> swapChainImages;
   std::vector<VkImageView> swapImageViews;
 };
+
+
+struct VulkanState{
+  VkInstance instance;
+  VkPhysicalDevice GPU;
+
+};
+
+inline VulkanState* pVulkan;

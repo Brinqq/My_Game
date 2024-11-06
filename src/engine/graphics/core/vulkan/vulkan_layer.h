@@ -17,5 +17,5 @@ inline VulkanInstanceLayers gRequiredInstanceLayers{1, {"VK_LAYER_KHRONOS_valida
 inline VulkanInstanceLayers gRequiredIntanceLayers{0, {}};
 #endif
 
-VKError vulkanValidateLayers();
+VKError vulkanLayersInitialize(int enableLogs = 0);
 

@@ -1,6 +1,6 @@
 #include "vulkan_layer.h"
 
-VKError vulkanValidateLayers(){
+static int vulkanValidateLayers(){
   uint32_t queriedLayerCount;
   unsigned int layersFound = 0;
   vkEnumerateInstanceLayerProperties(&queriedLayerCount, nullptr);
@@ -14,7 +14,15 @@ VKError vulkanValidateLayers(){
         }
     }
   }
-  if(layersFound != gRequiredInstanceLayers.layerCount){return VULKAN_REQUIRED_LAYERS_NOT_FOUND;}
-  return VULKAN_SUCCESS;
+  if(layersFound != gRequiredInstanceLayers.layerCount){return 1;}
+  return 0;
 }
 
+
+VKError vulkanLayersInitialize(int enableLogs){
+  if(vulkanValidateLayers()){return VULKAN_REQUIRED_LAYERS_NOT_FOUND;}
+  if(enableLogs){
+    
+  }
+  return VULKAN_SUCCESS;
+}

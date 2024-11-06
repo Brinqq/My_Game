@@ -4,13 +4,16 @@
 #include "log.h"
 #include "error.h"
 
+
+void engineDeinitialize(){
+
+}
+
 void engineInit(){
-  if(vulkanInitialize()){
-    LOG_CRITICAL("Failed to initialize Vulkan. No other backend api available");
-    applicationThrowCritcalError();
-  }
+  VulkanTestStart();
 }
 
 void testUpdate(){
+  VulkanTestUpdate();
 }
 
