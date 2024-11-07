@@ -48,11 +48,6 @@ LibraryIncludes+=" -I$VulkanPath/include"
 LinkerFlags+=" $LibraryLinkerFolder $LibraryFlags"
 CompileFlags="$CompilerVersion $debug $Includes $LibraryIncludes"
 
-echo $CompileFlags
-exit
-
-
-
 CleanBuild=0
 
 # Timer information
