@@ -8,9 +8,9 @@
 void VulkanTestStart(){
   LOG_INFO("here");
   vulkanInitialize();
-  
 }
 
 void VulkanTestUpdate(){
 
 }
+

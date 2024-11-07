@@ -247,7 +247,6 @@ void initSwapchain(){
     return;
   }
 
-
   VkSwapchainCreateInfoKHR ci{};
   ci.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
   ci.minImageCount = 2;
@@ -556,8 +555,4 @@ int vulkanInitialize(){
   if(VulkanInstanceCreate(pVulkan->instance)){return 0;}
   return 0;
 }
-
-
-
-
 

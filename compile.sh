@@ -77,7 +77,6 @@ _BOUTORANGE_="\033[1;38;5;208m"
 
 
 
-#TODO: implement cland compile info
 ExportClangdInfo=1;
 ClangdFile="compile_flags.txt"
 rm -fr $ClangdFile
