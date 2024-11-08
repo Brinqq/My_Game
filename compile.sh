@@ -22,9 +22,9 @@ if [ "$Platform" == "OSX" ]; then
   LinkerFlags=" -framework IOKit -framework CoreVideo -framework Cocoa -framework Metal -framework CoreFoundation -framework QuartzCore"
   Includes=$(find src -type d -not -path "src/platform/windows" -not -path "src/platform/linux" | sed 's/^/-I/')
   SourceFiles=($(find src -name "*.cpp" -not -path "src/platform/windows/*" -not -path "src/platform/linux/*" ))
-  debug="-g0 -g"
+  debug="-g0 -g -D__DUBUG"
   release=-g2
-  DEFINES="__DEBUG"
+  DEFINES=""
   Includes+=" -Iinclude"
 fi
 
@@ -46,7 +46,7 @@ LibraryIncludes+=" -I$VulkanPath/include"
 
 
 LinkerFlags+=" $LibraryLinkerFolder $LibraryFlags"
-CompileFlags="$CompilerVersion $debug $Includes $LibraryIncludes"
+CompileFlags="$CompilerVersion $debug $Includes $LibraryIncludes $DEFINES"
 
 CleanBuild=0
 
