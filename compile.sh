@@ -4,6 +4,10 @@ ProgramName=game
 
 #TODO: Add platform detection
 
+#TODO: Write impl for detecting changed dependecy files asap
+#force compile all cpp files cause no impl for getting dependecies to compile cpp file based on changed status of dep header files
+ForceCompileAll=1
+
 CXX=clang++
 Platform=OSX
 BuildType=Debug
@@ -22,9 +26,18 @@ if [ "$Platform" == "OSX" ]; then
   LinkerFlags=" -framework IOKit -framework CoreVideo -framework Cocoa -framework Metal -framework CoreFoundation -framework QuartzCore"
   Includes=$(find src -type d -not -path "src/platform/windows" -not -path "src/platform/linux" | sed 's/^/-I/')
   SourceFiles=($(find src -name "*.cpp" -not -path "src/platform/windows/*" -not -path "src/platform/linux/*" ))
-  debug="-g0 -g -D__DUBUG"
+  debug="-g0 -g -Wdeprecated-declarations"
   release=-g2
-  DEFINES=""
+  Defines=""
+
+  if [ "$BuildType" == "Debug" ]; then
+    Defines+=" -D__DEBUG=1"
+    Defines+=" -D__RELEASE=0"
+  else
+    Defines+=" -D__DEBUG=0"
+    Defines+=" -D__RELEASE=1"
+  fi
+
   Includes+=" -Iinclude"
 fi
 
@@ -44,9 +57,8 @@ LibraryIncludes+=" -I$VulkanPath/include"
 
 #TODO: Add defines add option for compiling in either debug or release
 
-
 LinkerFlags+=" $LibraryLinkerFolder $LibraryFlags"
-CompileFlags="$CompilerVersion $debug $Includes $LibraryIncludes $DEFINES"
+CompileFlags="$CompilerVersion $debug $Includes $LibraryIncludes $Defines"
 
 CleanBuild=0
 
@@ -86,6 +98,10 @@ if [ $ExportClangdInfo -eq 1 ]; then
 
   echo $CXX >> $ClangdFile
   echo $CompilerVersion>> $ClangdFile
+  defineArr=($Defines)
+  for def in ${defineArr[*]}; do
+    echo $def >> $ClangdFile
+  done
 
   for include in ${Includes[*]}; do
     echo $include >> $ClangdFile
@@ -116,7 +132,7 @@ PrintKeyValue(){
 
 
 CreateDir(){
-  mkdir $OutputDir $BuildDir $ObjectOutputDir $BuildDir/compile-data
+  mkdir $OutputDir $BuildDir $ObjectOutputDir $BuildDir/compile-data $BuildDir/dependecies/
 }
 
 Clean(){
@@ -135,6 +151,11 @@ CompileFile(){
     name="${file##*/}"
     path="${file%/*}"
     obj="${name/%.*/.o}"
+    if [ $ForceCompileAll ]; then
+      echo -e "${_BOUTORANGE_}[COMPILING] ${_OUTNORM_} $name"
+      $CXX $CompileFlags -c $path/$name -o $ObjectOutputDir/$obj
+      continue
+    fi
     if [ ! -f "$ObjectOutputDir/$obj" ] || [ "$path/$name" -nt "$ObjectOutputDir/$obj" ]; then
       echo -e "${_BOUTORANGE_}[COMPILING] ${_OUTNORM_} $name"
       $CXX $CompileFlags -c $path/$name -o $ObjectOutputDir/$obj
