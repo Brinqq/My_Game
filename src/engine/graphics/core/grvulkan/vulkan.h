@@ -1,6 +1,7 @@
 #pragma once
 
 class Window;
+
 #include "vulkandefines.h"
 
 void VulkanTestStart();

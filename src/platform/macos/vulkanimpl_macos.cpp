@@ -29,11 +29,15 @@ void pvAppendRequiredDeviceExtension(std::vector<const char*>& extensions){
   extensions.emplace_back("VK_KHR_portability_subset");
 }
 
-void pvEnableQueues(VulkanContext* context){
-  vkGetDeviceQueue(context->device, context->queueFamilyIndices.graphicQueueFamilyIndex, 0, &context->queues.graphicQueue);
-  vkGetDeviceQueue(context->device, context->queueFamilyIndices.computeQueueFamilyIndex, 0, &context->queues.computeQueue);
-  vkGetDeviceQueue(context->device, context->queueFamilyIndices.tranferQueueFamilyIndex, 0, &context->queues.transferQueue);
-  vkGetDeviceQueue(context->device, context->queueFamilyIndices.presentQueueFamilyIndex, 0, &context->queues.presentQueue);
+void pvEnableQueues(const VkDevice& device, const QueueFamilyIndices& indices, VulkanQueues& queues){
+  vkGetDeviceQueue(device, indices.graphicQueueFamilyIndex, 0, &queues.graphicQueue);
+  vkGetDeviceQueue(device, indices.computeQueueFamilyIndex, 0, &queues.computeQueue);
+  vkGetDeviceQueue(device, indices.tranferQueueFamilyIndex, 0, &queues.transferQueue);
+  vkGetDeviceQueue(device, indices.presentQueueFamilyIndex, 0, &queues.presentQueue);
+}
+
+void pvInitializeQueue(){
+
 }
 
 void pvSetQueueCreateInfo(VkDeviceQueueCreateInfo* pQueues, uint32_t count, const float priorityArray[4]){
@@ -46,7 +50,7 @@ void pvSetQueueCreateInfo(VkDeviceQueueCreateInfo* pQueues, uint32_t count, cons
   }
 }
   
-int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, QueueFamilyIndices& indexStruct, uint32_t count){
+int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, VulkanQueueConfig& config, uint32_t count){
   int x = 0;
   for(int i = 0; i < count;i++){
     if(properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT|VK_QUEUE_TRANSFER_BIT|VK_QUEUE_COMPUTE_BIT){
@@ -55,10 +59,16 @@ int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, QueueFamilyIn
   }
 
   if(x == count){
-    indexStruct.graphicQueueFamilyIndex = 0;
-    indexStruct.computeQueueFamilyIndex = 1;
-    indexStruct.tranferQueueFamilyIndex = 2;
-    indexStruct.presentQueueFamilyIndex = 3;
+    config.indices.graphicQueueFamilyIndex = 0;
+    config.indices.computeQueueFamilyIndex = 1;
+    config.indices.tranferQueueFamilyIndex = 2;
+    config.indices.presentQueueFamilyIndex = 3;
+    config.queueCount = 4;
+    config.pPriorityBuffer = (float*)malloc(sizeof(float)*4);
+    config.pPriorityBuffer[0] = 1.0f;
+    config.pPriorityBuffer[1] = 0.97f;
+    config.pPriorityBuffer[2] = 0.98f;
+    config.pPriorityBuffer[2] = 0.99f;
     return 0;
   }
   

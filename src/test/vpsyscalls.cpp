@@ -19,10 +19,6 @@ void sys_assert(const char* msg, long code){
 }
 
 void vpSysCallStart(){
-  void* m = malloc(4);
-  void* s = sbrk(8);
-  free(m);
-  (char*)s+5;
 }
 
 #endif

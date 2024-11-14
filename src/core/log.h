@@ -4,7 +4,7 @@
 #include "defines.h"
 #include <stdarg.h>
 
-inline const char* logArr[6] = {"\033[31mCIRTICAL: ", "\033[33mERROR: ", "\033[32mWARN: ", "\033[36mINFO: ", "\033[34mTRACE: ", "\033[37mDEBUG: "};
+inline const char* logArr[8] = {"\033[31mCIRTICAL: ", "\033[33mERROR: ", "\033[32mWARN: ", "\033[36mINFO: ", "\033[34mTRACE: ", "\033[37mDEBUG: ",  "\033[1;38;5;128mPG: ", "\033[1;38;5;208mSYSTEM: "};
 
 enum LogLevel{
   LOG_LEVEL_CRITICAL = 0,
@@ -13,18 +13,24 @@ enum LogLevel{
   LOG_LEVEL_INFO = 3,
   LOG_LEVEL_TRACE = 4,
   LOG_LEVEL_DEBUG = 5,
+  LOG_LEVEL_PG = 6,
+  LOG_LEVEL_SYS = 7
 };
 
-#if __GAME_BUILD_DEBUG
+#if __DEBUG
 #define LOG_WARN_ENABLE 1
 #define LOG_INFO_ENABLE 1
 #define LOG_TRACE_ENABLE 1
 #define LOG_DEBUG_ENABLE 1
+#define LOG_PG_ENABLE 1
+#define LOG_SYS_ENABLE 1
 #else
 #define LOG_WARN_ENABLE 0
 #define LOG_INFO_ENABLE 0
 #define LOG_TRACE_ENABLE 0
 #define LOG_DEBUG_ENABLE 0
+#define LOG_PG_ENABLE 0
+#define LOG_SYS_ENABLE 0
 #endif
 
 #define MAX_LOG_MSG_LENGTH 100 //200 characters max
@@ -68,6 +74,18 @@ inline void logToConsole(LogLevel level, const char* pMsg, ...){
 
 #if LOG_DEBUG_ENABLE
 #define LOG_DEBUG(msg, ...) logToConsole(LOG_LEVEL_DEBUG, msg, ##__VA_ARGS__)
+#else
+#define LOG_DEBUG(msg, ...)
+#endif
+
+#if LOG_PG_ENABLE
+#define LOG_PG(msg, ...) logToConsole(LOG_LEVEL_PG, msg, ##__VA_ARGS__)
+#else
+#define LOG_DEBUG(msg, ...)
+#endif
+
+#if LOG_SYS_ENABLE
+#define LOG_SYS(msg, ...) logToConsole(LOG_LEVEL_SYS, msg, ##__VA_ARGS__)
 #else
 #define LOG_DEBUG(msg, ...)
 #endif

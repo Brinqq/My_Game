@@ -6,7 +6,7 @@
 
 
 void engineDeinitialize(){
-
+  vulkanDeinitializee();
 }
 
 void engineInit(){

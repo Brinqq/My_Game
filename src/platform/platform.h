@@ -27,13 +27,15 @@
   //platform specific vulkan impl function definitions
   struct QueueFamilyIndices;
   struct VulkanContext;
+  struct VulkanQueueConfig;
+  struct VulkanQueues;
 
   void pvCreateSurface();
-  int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, QueueFamilyIndices& indexStruct, uint32_t count);
+  int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, VulkanQueueConfig& config, uint32_t count);
   int pvGetRequiredInstanceExtensions(std::vector<const char*>& ext);
   void pvSetQueueCreateInfo(VkDeviceQueueCreateInfo* pQueues, const uint32_t count, const float priorityArray[4]);
   void pvAppendRequiredDeviceExtension(std::vector<const char*>& extensions);
-  void pvEnableQueues(VulkanContext* context);
+  void pvEnableQueues(const VkDevice& device, const QueueFamilyIndices& indices, VulkanQueues& queues);
   int pvInitialize();
 
   void inline pvCreateSurface(VkInstance inst, VkSurfaceKHR* surface){

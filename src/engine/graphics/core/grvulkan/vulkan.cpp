@@ -152,8 +152,8 @@ VKError initializeQueuefamilies(){
   vkGetPhysicalDeviceQueueFamilyProperties(context->physicalDevice, &queueFamilyCount, nullptr);
   VkQueueFamilyProperties* availableQueueFamilies = (VkQueueFamilyProperties*)alloca(sizeof(VkQueueFamilyProperties)*queueFamilyCount);
   vkGetPhysicalDeviceQueueFamilyProperties(context->physicalDevice, &queueFamilyCount, availableQueueFamilies);
-  if(!pvInitializeQueueFamilies(availableQueueFamilies, context->queueFamilyIndices, queueFamilyCount)){return VULKAN_SUCCESS;}
-  return VULKAN_QUEUE_FAMILIY_INITIALIZATION_ERROR;
+  // if(!pvInitializeQueueFamilies(availableQueueFamilies, context->queueFamilyIndices, queueFamilyCount)){return VULKAN_SUCCESS;}
+  return VULKAN_QUEUE_FAMILY_INITIALIZATION_ERROR;
 }
 
 void createLogicalDevice(){
@@ -179,8 +179,7 @@ void createLogicalDevice(){
   dci.enabledExtensionCount = extensions.size();
   dci.ppEnabledExtensionNames = extensions.data();
   vkCreateDevice(context->physicalDevice, &dci, nullptr, &context->device);
-  pvEnableQueues(context);
-
+  // pvEnableQueues(context);
 }
 
 int ChoosePresentationMode(VkPresentModeKHR& presentMode){
@@ -268,7 +267,6 @@ void initSwapchain(){
   ci.clipped = VK_TRUE;
   ci.oldSwapchain = VK_NULL_HANDLE;
   VKCALL(vkCreateSwapchainKHR(context->device, &ci, nullptr, &context->swapchain))
-
 }
 
 int querySwapImages(){
@@ -512,9 +510,12 @@ void vulkanDrawFrame(){
 
 //---------------------------------------------------------------------
 
+
 #include "vulkan_layer.h"
 #include "vulkan_extensions.h"
 #include "vulkan_device.h"
+#include "vulkanview.h"
+#include "vulkan_queue.h"
 
 
 static int VulkanInstanceCreate(VkInstance& instance){
@@ -541,18 +542,27 @@ static int VulkanInstanceCreate(VkInstance& instance){
   return 0;
 }
 
+
+VulkanView* view;
+
 void vulkanDeinitializee(){
   LOG_INFO("Vulkan backend shutting down");
+  view->cleanup();
+  vulkanDeviceCleanup(pVulkan->instance, pVulkan->device);
   vkDestroyInstance(pVulkan->instance, nullptr);
   free(pVulkan);
-
 }
+
 
 int vulkanInitialize(){
   pVulkan = (VulkanState*)malloc(sizeof(VulkanState));
   VKCH(vulkanLayersInitialize());
   VKCH(VulkanInitDeviceAndInstanceEXT())
   if(VulkanInstanceCreate(pVulkan->instance)){return 0;}
+  VKCH(VulkanNewPhysicalDevice(pVulkan->instance, pVulkan->device.gpu))
+  VKCH(VulkanNewLogicalDevice(pVulkan->instance, pVulkan->device.gpu, pVulkan->device.device))
+  view = new VulkanView(pVulkan->instance, pVulkan->device);
+  VKCH(view->initialize())
   return 0;
 }
 

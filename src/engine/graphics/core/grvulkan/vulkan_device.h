@@ -2,9 +2,7 @@
 
 #include "vulkandefines.h"
 
-class VulkanDevice{
-
-};
-
 VKError VulkanNewPhysicalDevice(const VkInstance& instance, VkPhysicalDevice& device);
-void vulkanDeviceCleanUp();
+VKError VulkanNewLogicalDevice(const VkInstance& instance, const VkPhysicalDevice gpu, VkDevice& device);
+void vulkanDeviceCleanup(const VkInstance& instance, VulkanDevice& device);
+

@@ -9,9 +9,10 @@ enum VKError{
   VULKAN_SUCCESS = 0,
   VULKAN_REQUIRED_LAYERS_NOT_FOUND = 23,
   VULKAN_NO_SUITABLE_GRAPHIC_DEVICE = 24,
-  VULKAN_QUEUE_FAMILIY_INITIALIZATION_ERROR = 25,
+  VULKAN_QUEUE_FAMILY_INITIALIZATION_ERROR = 25,
   VULKAN_REQUIRED_DEVICE_EXTENSIONS_MISSING = 26,
   VULKAN_SWAP_CAPABILITIES_NOT_FOUND = 27,
+  VULKAN_SWAP_CHAIN_VALIDATION_ERROR = 28,
 };
 
 #if __DEBUG
@@ -50,9 +51,10 @@ inline std::unordered_map<VKError, VKMessage> errorMap;
 inline void logOutVKError(VKError err){
   if(err == VULKAN_REQUIRED_LAYERS_NOT_FOUND){LOG_CRITICAL("Requested Layers not found!");}
   if(err == VULKAN_NO_SUITABLE_GRAPHIC_DEVICE){LOG_CRITICAL("Could not find suitable GPU!");}
-  if(err == VULKAN_QUEUE_FAMILIY_INITIALIZATION_ERROR){LOG_CRITICAL("Queue family initialization failed!");}
+  if(err == VULKAN_QUEUE_FAMILY_INITIALIZATION_ERROR){LOG_CRITICAL("Queue family initialization failed!");}
   if(err == VULKAN_REQUIRED_DEVICE_EXTENSIONS_MISSING){LOG_CRITICAL("Could not find required device extensions!");}
   if(err == VULKAN_SWAP_CAPABILITIES_NOT_FOUND){LOG_CRITICAL( "L!"); programErrorOut();}
+  if(err == VULKAN_SWAP_CHAIN_VALIDATION_ERROR){LOG_CRITICAL( "Failure while validating swap chain support");}
   LOG_CRITICAL("Unkown error");
   programErrorOut();
 }

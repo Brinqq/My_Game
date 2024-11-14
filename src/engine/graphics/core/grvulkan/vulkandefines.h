@@ -4,8 +4,6 @@
 
 #include "vulkan/vulkan.h"
 #include "vulkanerr.h"
-#include "vulkan_device.h"
-
 
 
 #define FORMATS_PREALLOC_ARRAY_SIZE 100
@@ -61,10 +59,23 @@ struct VulkanContext{
 };
 
 
+// --------------------------------------------------------------------------------
+
+
+struct VulkanDevice{
+  VkDevice device;
+  VkPhysicalDevice gpu;
+};
+
 struct VulkanState{
   VkInstance instance;
-  VkPhysicalDevice GPU;
+  VulkanDevice device;
+};
 
+struct VulkanQueueConfig{
+  uint32_t queueCount;
+  float* pPriorityBuffer;
+  QueueFamilyIndices indices;
 };
 
 inline VulkanState* pVulkan;
