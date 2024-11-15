@@ -8,7 +8,7 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 #include "platform.h"
-#include "vulkan_renderpass.h"
+#include "vulkanrenderpass.h"
 #include "vulkan_framebuffer.h"
 
 #include "primitives.h"
@@ -516,6 +516,7 @@ void vulkanDrawFrame(){
 #include "vulkan_device.h"
 #include "vulkanview.h"
 #include "vulkan_queue.h"
+#include "vulkanpipeline.h"
 
 
 static int VulkanInstanceCreate(VkInstance& instance){
@@ -544,15 +545,20 @@ static int VulkanInstanceCreate(VkInstance& instance){
 
 
 VulkanView* view;
+VulkanPipeline* pipeline;
 
 void vulkanDeinitializee(){
   LOG_INFO("Vulkan backend shutting down");
+  pipeline->cleanup();
   view->cleanup();
   vulkanDeviceCleanup(pVulkan->instance, pVulkan->device);
   vkDestroyInstance(pVulkan->instance, nullptr);
   free(pVulkan);
 }
 
+void newTriangle(){
+  pipeline->shaderStageBind();
+}
 
 int vulkanInitialize(){
   pVulkan = (VulkanState*)malloc(sizeof(VulkanState));
@@ -562,7 +568,10 @@ int vulkanInitialize(){
   VKCH(VulkanNewPhysicalDevice(pVulkan->instance, pVulkan->device.gpu))
   VKCH(VulkanNewLogicalDevice(pVulkan->instance, pVulkan->device.gpu, pVulkan->device.device))
   view = new VulkanView(pVulkan->instance, pVulkan->device);
+  pipeline = new VulkanPipeline(pVulkan->instance, pVulkan->device.device, *view);
   VKCH(view->initialize())
+  VKCH(pipeline->initialize())
+  newTriangle();
   return 0;
 }
 

@@ -2,7 +2,8 @@
 
 #define GAME_NAME "Game"
 #define __GAME_BUILD_DEBUG 1
-#define _GR_BACKEND_VULKAN 
+#define _GR_BACKEND_VULKAN 0
+#define _GR_BACKEND_OPENGL 1
 
 //Assertion for 64 bit arch
 static_assert(sizeof(char) == 1, "Application requires compilation with 64bit compiler!");

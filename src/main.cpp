@@ -7,11 +7,11 @@
 #include "pg.h"
 
 int main(void){
+initializeRequiredSystemInfo(1);
 #if __DEBUG
   LOG_INFO("Current game build running in debug mode!");
   pgTest();
 #endif
-  initializeRequiredSystemInfo(1);
   applicationStart();
   return 0;
 }

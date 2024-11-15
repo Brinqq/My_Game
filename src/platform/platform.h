@@ -30,6 +30,7 @@
   struct VulkanQueueConfig;
   struct VulkanQueues;
 
+  //vulkan platform specific code
   void pvCreateSurface();
   int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, VulkanQueueConfig& config, uint32_t count);
   int pvGetRequiredInstanceExtensions(std::vector<const char*>& ext);
@@ -43,7 +44,6 @@
   };
 
   //internal logic
-
   inline int platformInitialize(){
     pStateHandles = (StateHandles*)malloc(sizeof(StateHandles));
     windowCreate(pStateHandles->windowState);

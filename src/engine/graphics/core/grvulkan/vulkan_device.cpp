@@ -10,6 +10,10 @@ struct VulkanDeviceState{
   VulkanQueues queues;
 };
 
+const std::array<const char*, 1> reqDeviceExtensions = {
+  "VK_KHR_swapchain",
+};
+
 //TODO: heap alloc state objects maybe?
 static VulkanDeviceState pState{};
 
@@ -51,6 +55,9 @@ VKError VulkanNewLogicalDevice(const VkInstance& instance, const VkPhysicalDevic
     pQueues[i].pQueuePriorities = &config.pPriorityBuffer[i];
     pQueues[i].queueFamilyIndex = i; 
     pQueues[i].queueCount = 1;
+  }
+  for(const char* extension: reqDeviceExtensions){
+    gVulkanExtensions.deviceExtensions.emplace_back(extension);
   }
   pvAppendRequiredDeviceExtension(gVulkanExtensions.deviceExtensions);
   dci.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

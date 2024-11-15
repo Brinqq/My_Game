@@ -6,14 +6,11 @@
 
 
 void engineDeinitialize(){
-  vulkanDeinitializee();
 }
 
 void engineInit(){
-  VulkanTestStart();
 }
 
 void testUpdate(){
-  VulkanTestUpdate();
 }
 

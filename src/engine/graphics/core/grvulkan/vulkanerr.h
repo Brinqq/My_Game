@@ -13,6 +13,9 @@ enum VKError{
   VULKAN_REQUIRED_DEVICE_EXTENSIONS_MISSING = 26,
   VULKAN_SWAP_CAPABILITIES_NOT_FOUND = 27,
   VULKAN_SWAP_CHAIN_VALIDATION_ERROR = 28,
+  VULKAN_PRESENTATION_NOT_SUPPORTED_ERROR = 29,
+  VULKAN_SWAPCHAIN_INITIALIZATION_ERROR = 30,
+  VULKAN_IMAGEVIEW_INITIALIZATION_ERROR = 31
 };
 
 #if __DEBUG
@@ -55,6 +58,9 @@ inline void logOutVKError(VKError err){
   if(err == VULKAN_REQUIRED_DEVICE_EXTENSIONS_MISSING){LOG_CRITICAL("Could not find required device extensions!");}
   if(err == VULKAN_SWAP_CAPABILITIES_NOT_FOUND){LOG_CRITICAL( "L!"); programErrorOut();}
   if(err == VULKAN_SWAP_CHAIN_VALIDATION_ERROR){LOG_CRITICAL( "Failure while validating swap chain support");}
+  if(err == VULKAN_PRESENTATION_NOT_SUPPORTED_ERROR){LOG_CRITICAL( "GPU does not support presentation requirments");}
+  if(err == VULKAN_SWAPCHAIN_INITIALIZATION_ERROR){LOG_CRITICAL( "Failure to initialize swap chain during vulkan view system initialization");}
+  if(err == VULKAN_IMAGEVIEW_INITIALIZATION_ERROR){LOG_CRITICAL( "Failure to initialize view images during vulkan view system initialization");}
   LOG_CRITICAL("Unkown error");
   programErrorOut();
 }

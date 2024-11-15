@@ -1,0 +1,72 @@
+#include "vulkanview.h"
+#include "platform.h"
+
+#include <vulkan/vulkan.h>
+
+//supported arrays are sorted from most desirable to least and when iterating through to set what to use it will choose the first one available
+//TODO: Maybe make this configurable
+static const unsigned int g_supportedFormatCount = 1;
+static const unsigned int g_supportedColorSpaceCount = 1;
+static const VkFormat g_supportedFormats[1] {VK_FORMAT_B8G8R8A8_SRGB};
+static const VkColorSpaceKHR g_supportedColorSpaces[1]{VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+
+struct VulkanViewState{
+  VkSurfaceKHR surface;
+
+};
+
+VKError VulkanView::initialize(){
+  pvCreateSurface(instanceHandle, &surface);
+  if(validateSwapchainSupport()) return VULKAN_SWAP_CHAIN_VALIDATION_ERROR;
+  if(initializePresentation())return VULKAN_PRESENTATION_NOT_SUPPORTED_ERROR;
+  LOG_INFO("View System initialized Successfully");
+  return VULKAN_SUCCESS;
+};
+
+VulkanView::~VulkanView(){
+
+}
+
+int VulkanView::validateSwapchainSupport(){
+  uint32_t numFormats;
+  uint32_t numPresentModes;
+  VkSurfaceCapabilitiesKHR surfaceInfo;
+  VKCALL(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(deviceHandle.gpu, surface, &surfaceInfo))
+  VKCALL(vkGetPhysicalDeviceSurfaceFormatsKHR(deviceHandle.gpu, surface, &numFormats, nullptr))
+  VKCALL(vkGetPhysicalDeviceSurfacePresentModesKHR(deviceHandle.gpu, surface, &numPresentModes, nullptr))
+  void* buffer = malloc((sizeof(VkSurfaceFormatKHR)*numFormats) + (sizeof(VkPresentModeKHR)*numPresentModes));
+  swapchain.formats = (VkSurfaceFormatKHR*)buffer;
+  swapchain.presentationModes = (VkPresentModeKHR*)(VkSurfaceFormatKHR*)buffer+numFormats;
+  VKCALL(vkGetPhysicalDeviceSurfaceFormatsKHR(deviceHandle.gpu, surface, &numFormats, swapchain.formats))
+  VKCALL(vkGetPhysicalDeviceSurfacePresentModesKHR(deviceHandle.gpu, surface, &numPresentModes, swapchain.presentationModes))
+  swapchain.formatsAvailable = numFormats;
+  swapchain.presentationModesAvailable = numPresentModes;
+  if(numFormats != 0 && numPresentModes != 0 ) return 0;
+  return 1;
+}
+
+void VulkanView::cleanup(){
+  vkDestroySurfaceKHR(instanceHandle, surface, nullptr);
+  LOG_INFO("View system deinitialized succesfully");
+}
+
+int VulkanView::initializePresentation(){
+  bool formatFound = false;
+  bool colorspaceFound = false;
+  for(int i = 0; i < swapchain.formatsAvailable; i++){
+    for(int x = 0; x < g_supportedFormatCount; x++){
+      if (formatFound == false && swapchain.formats[i].format == g_supportedFormats[x]){
+        presentation.format.format = swapchain.formats[i].format;
+        formatFound = true;
+      }
+      if(colorspaceFound == false && swapchain.formats->colorSpace == g_supportedColorSpaces[x]){
+        swapchain.formats->colorSpace = g_supportedColorSpaces[x];
+        colorspaceFound = true;
+      }
+    }
+  }
+  for(int i = 0; i < swapchain.presentationModesAvailable; i++)
+  if(formatFound && colorspaceFound) return 0;
+  return 1;
+}
+  

@@ -23,7 +23,7 @@ PlatformWinPath=src/platform/windows/*
 
 
 if [ "$Platform" == "OSX" ]; then
-  LinkerFlags=" -framework IOKit -framework CoreVideo -framework Cocoa -framework Metal -framework CoreFoundation -framework QuartzCore"
+  LinkerFlags=" -framework IOKit -framework CoreVideo -framework Cocoa -framework Metal -framework CoreFoundation -framework QuartzCore -framework OpenGL"
   Includes=$(find src -type d -not -path "src/platform/windows" -not -path "src/platform/linux" | sed 's/^/-I/')
   SourceFiles=($(find src -name "*.cpp" -not -path "src/platform/windows/*" -not -path "src/platform/linux/*" ))
   debug="-g0 -g -Wdeprecated-declarations"
