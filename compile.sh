@@ -20,15 +20,19 @@ LibraryFolder=lib
 PlatformMacosPath=src/platform/macos/*
 PlatformLinuxPath=src/platform/linux/*
 PlatformWinPath=src/platform/windows/*
+LibraryIncludes=""
+
 
 
 if [ "$Platform" == "OSX" ]; then
   LinkerFlags=" -framework IOKit -framework CoreVideo -framework Cocoa -framework Metal -framework CoreFoundation -framework QuartzCore -framework OpenGL"
   Includes=$(find src -type d -not -path "src/platform/windows" -not -path "src/platform/linux" | sed 's/^/-I/')
+  LibraryIncludes="-Ilib/metalcpp/"
   SourceFiles=($(find src -name "*.cpp" -not -path "src/platform/windows/*" -not -path "src/platform/linux/*" ))
   debug="-g0 -g -Wdeprecated-declarations"
   release=-g2
   Defines=""
+
 
   if [ "$BuildType" == "Debug" ]; then
     Defines+=" -D__DEBUG=1"
@@ -41,11 +45,12 @@ if [ "$Platform" == "OSX" ]; then
   Includes+=" -Iinclude"
 fi
 
+
 # glfw
 GLFWPath="$LibraryFolder/glfw"
 LibraryFlags="-lglfw3"
 LibraryLinkerFolder="-L$GLFWPath/build/src/"
-LibraryIncludes="-I$GLFWPath/include"
+LibraryIncludes+=" -I$GLFWPath/include"
 
 # TODO: Fix vulkan path env
 # TODO: Fix the whole vulkan impl tbh
@@ -54,6 +59,19 @@ VulkanPath="$HOME/programming/vulkan/macos"
 LibraryLinkerFolder+=" -L$VulkanPath/lib"
 LibraryFlags+=" -lvulkan.1 -lvulkan.1.3.290"
 LibraryIncludes+=" -I$VulkanPath/include"
+
+#glm
+GlmPath="$LibraryFolder/glm"
+LibraryIncludes+=" -I$GlmPath"
+
+
+if [ ! -f build/objects/glad.o ]; then
+  clang -c lib/glad/src/glad.c -Ilib/glad/include -o build/objects/glad.o
+fi
+LibraryIncludes+=" -Ilib/glad/include/"
+
+
+
 
 #TODO: Add defines add option for compiling in either debug or release
 
@@ -185,8 +203,6 @@ FreshBuild(){
   echo -e "${_OUTYELLOW_}Fresh build detected!${_OUTNORM_}"
   echo -e ""
 }
-
-
 echo -e "${_BOUTCYAN_}Configuration Info${_OUTNORM_}"
 PrintKeyValue "COMPILER" $CXX
 PrintKeyValue "TARGET" $Platform

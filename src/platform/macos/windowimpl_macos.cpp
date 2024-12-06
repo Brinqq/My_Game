@@ -5,11 +5,11 @@
 #include "log.h"
 
 #include "GLFW/glfw3.h"
+#include "glad/glad.h"
 
 
 #define WINDOW_DEFAULT_RES_X 1280
 #define WINDOW_DEFAULT_RES_Y 720
-
 
 struct WindowState;
 
@@ -31,7 +31,7 @@ int windowCreate(WindowState& state){
     state.clientRes.y = y;
     glfwInit();
     glfwSetErrorCallback(windowErrorCallback);
-    if(_GR_BACKEND_VULKAN){
+    if(_GR_BACKEND_VULKAN || _GR_BACKEND_METAL){
       glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     }else{
       glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -41,8 +41,15 @@ int windowCreate(WindowState& state){
     }
     glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
     state.windowHandle = glfwCreateWindow(x, y, "Game", nullptr, nullptr);
+    if(_GR_BACKEND_OPENGL){ 
+      glfwMakeContextCurrent(state.windowHandle);
+      if(!gladLoadGL()){
+        LOG_ERROR("Failed to load glad, Switching graphic backend");
+      }
+    }
     glfwShowWindow(state.windowHandle);
     pWindowState = &state;
+    glfwSwapInterval(0);
     return 0;
   }
 
@@ -54,8 +61,7 @@ void windowCleanup(WindowState& state){
 
 void windowUpdate(WindowState& state){
   #if _GR_BACKEND_OPENGL
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f); glClear(GL_COLOR_BUFFER_BIT);
-  glfwSwapBuffers(state.windowHandle);
+  // glfwSwapBuffers(state.windowHandle);
   #endif
   glfwPollEvents();
   if(glfwWindowShouldClose(state.windowHandle)){gExitFlag = true;}

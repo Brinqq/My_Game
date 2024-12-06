@@ -13,6 +13,10 @@
 
 #include "primitives.h"
 
+struct vc3{float x, y, z;};
+struct Vertex{
+  vc3 a;
+};
 
 static const Vertex gVertices[3]{
   {0.0f, 0.5f, 0.0f},

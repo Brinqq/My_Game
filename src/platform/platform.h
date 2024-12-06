@@ -1,6 +1,6 @@
 #pragma once
 #include "global.h"
-
+#include "defines.h"
 
 
 #ifdef _WIN32
