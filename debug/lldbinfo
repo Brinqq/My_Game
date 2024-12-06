@@ -1,4 +1,0 @@
-executable: bin/game 
-env: DYLD_LIBRARY_PATH=/Users/brinq/programming/vulkan/macOS/lib
-env: VK_ICD_FILENAMES=/Users/brinq/programming/vulkan/macOS/share/vulkan/icd.d/MoltenVK_icd.json
-env: VK_LAYER_PATH=/Users/brinq/programming/vulkan/macOS/share/vulkan/explicit_layer.d
