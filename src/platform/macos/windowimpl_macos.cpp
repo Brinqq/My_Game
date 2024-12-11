@@ -4,6 +4,8 @@
 #include "defines.h"
 #include "log.h"
 
+#include "input/input.h"
+
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 
@@ -50,6 +52,7 @@ int windowCreate(WindowState& state){
     glfwShowWindow(state.windowHandle);
     pWindowState = &state;
     glfwSwapInterval(0);
+    glfwSetKeyCallback(state.windowHandle, windowKeyCallback);
     return 0;
   }
 

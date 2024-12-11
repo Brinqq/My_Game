@@ -1,8 +1,8 @@
 #include "engine.h"
-#include "window.h"
 #include "log.h"
 #include "error.h"
 #include "timing.h"
+#include "input.h"
 
 #include "opengl.h"
 #include "glpipeline.h"
@@ -14,6 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "events/events.h"
 
 GLDevice g_device;
 GLPipeline g_pipeline;
@@ -81,6 +82,7 @@ void l(){
 void testUpdateModelTransform(){
   model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
   g_device.updateUniformMat4(g_shader, modelUniform, glm::value_ptr(model));
+  g_device.updateUniformMat4(g_shader, viewUniform, glm::value_ptr(view));
 }
 
 
@@ -88,7 +90,37 @@ void engineDeinitialize(){
   g_device.shutdown();
 }
 
+//movement test
+void moveFowardCallback(){
+  view = glm::translate(view, glm::vec3(0.0, 0.0, 0.001f));
+}
+
+void moveBackwordCallback(){
+  view = glm::translate(view, glm::vec3(0.0, 0.0, -0.001f));
+
+}
+
+void moveRightCallback(){
+  view = glm::translate(view, glm::vec3(-0.002, 0.0, 0.0f));
+}
+
+void moveLeftCallback(){
+  view = glm::translate(view, glm::vec3(0.002, 0.0, 0.0f));
+}
+
+void movementEventSetup(){
+  subscribeToStaticEvent(KEY_PRESSED_W_EVENT, moveFowardCallback);
+  subscribeToStaticEvent(KEY_PRESSED_A_EVENT, moveLeftCallback);
+  subscribeToStaticEvent(KEY_PRESSED_D_EVENT, moveRightCallback);
+  subscribeToStaticEvent(KEY_PRESSED_S_EVENT, moveBackwordCallback);
+}
+
+//===
+
 void engineInit(){
+  eventSystemInitialize();
+  inputSystemInitialize();
+  movementEventSetup();
   timingInitialize();
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
   modelTimePoint = globalTimingNewTimePoint();
@@ -97,6 +129,7 @@ void engineInit(){
 
 void testUpdate(){
   frameTimingUpdate();
+  inputSystemUpdate();
   if(globalTimePointCheck(modelTimePoint,(float)1/60)){
     testUpdateModelTransform();
   }
