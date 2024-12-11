@@ -1,6 +1,5 @@
 #include "vulkan_queue.h"
 #include "platform.h"
-#include "mem.h"
 
 //TODO: move queue family stuct inside file once refactor is done
 QueueFamilyIndices familyIndices;
@@ -15,7 +14,7 @@ static void logOutQueueFamilyInfo(QueueFamilyIndices indices){
 int VulkanInitializeQueueFamilies(const VkPhysicalDevice& gpu, VulkanQueueConfig& config){
   uint32_t queueFamilyCount;
   vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilyCount, nullptr);
-  VkQueueFamilyProperties* availableQueueFamilies = BAlloca(VkQueueFamilyProperties, queueFamilyCount);
+  VkQueueFamilyProperties* availableQueueFamilies = nullptr; //CRITICAL: must fix for vulkan to work. DO NOT FORGET
   vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilyCount, availableQueueFamilies);
   if(pvInitializeQueueFamilies(availableQueueFamilies, config, queueFamilyCount)){
     return 1;

@@ -3,7 +3,6 @@
 #include "global.h"
 #include "log.h"
 #include "vulkanerr.h"
-#include "window.h"
 #include "vulkandefines.h"
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
