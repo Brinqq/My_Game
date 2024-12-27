@@ -33,7 +33,7 @@ enum LogLevel{
 #define LOG_SYS_ENABLE 0
 #endif
 
-#define MAX_LOG_MSG_LENGTH 100 //200 characters max
+#define MAX_LOG_MSG_LENGTH 500 //200 characters max
 
 inline void logToConsole(LogLevel level, const char* pMsg, ...){
   char msgBuffer[MAX_LOG_MSG_LENGTH];
