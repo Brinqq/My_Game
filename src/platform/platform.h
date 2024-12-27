@@ -2,6 +2,8 @@
 #include "global.h"
 #include "defines.h"
 
+#include "bstl/vector.h"
+
 
 #ifdef _WIN32
 #define ALLEGRO_NO_MAGIC_MAIN
@@ -14,34 +16,24 @@
 #include "vulkan/vulkan.h"
 #include "GLFW/glfw3.h"
 
-  struct StateHandles{
-    WindowState windowState;
-  };
+struct StateHandles{
+  WindowState windowState;
+};
   
-  inline StateHandles* pStateHandles;
+inline StateHandles* pStateHandles;
 
-  void windowUpdate(WindowState& state);
-  int windowCreate(WindowState& state);
-  void pwGetPresentationSize(int& x, int& y);
+void windowUpdate(WindowState& state);
+int windowCreate(WindowState& state);
+void pwGetPresentationSize(int& x, int& y);
 
-  //platform specific vulkan impl function definitions
-  struct QueueFamilyIndices;
-  struct VulkanContext;
-  struct VulkanQueueConfig;
-  struct VulkanQueues;
+  // interface
+#define PLATFORM_VULKAN_REQUIRED_INSTANCE_FLAGS VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
+void platformGetRequiredVulkanExtensions(bstl::Vector<const char*>& extensions);
 
-  //vulkan platform specific code
-  void pvCreateSurface();
-  int pvInitializeQueueFamilies(VkQueueFamilyProperties* properties, VulkanQueueConfig& config, uint32_t count);
-  int pvGetRequiredInstanceExtensions(std::vector<const char*>& ext);
-  void pvSetQueueCreateInfo(VkDeviceQueueCreateInfo* pQueues, const uint32_t count, const float priorityArray[4]);
-  void pvAppendRequiredDeviceExtension(std::vector<const char*>& extensions);
-  void pvEnableQueues(const VkDevice& device, const QueueFamilyIndices& indices, VulkanQueues& queues);
-  int pvInitialize();
 
-  void inline pvCreateSurface(VkInstance inst, VkSurfaceKHR* surface){
-    glfwCreateWindowSurface(inst, pStateHandles->windowState.windowHandle, nullptr, surface);
-  };
+void inline pvCreateSurface(VkInstance inst, VkSurfaceKHR* surface){
+  // glfwCreateWindowSurface(inst, pStateHandles->windowState.windowHandle, nullptr, surface);
+};
 
   //internal logic
   inline int platformInitialize(){

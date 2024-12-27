@@ -2,16 +2,16 @@
 
 
 //tmp
-
 #include "vulkan.h"
+#include "stdio.h"
 
 
 static void updateVulkan(){
-
+  
 }
 
 static void setupVulkan(){
-
+  vulkanInitialize();
 }
 
 //

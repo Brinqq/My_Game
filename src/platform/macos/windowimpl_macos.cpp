@@ -49,7 +49,7 @@ int windowCreate(WindowState& state){
         LOG_ERROR("Failed to load glad, Switching graphic backend");
       }
     }
-    glfwShowWindow(state.windowHandle);
+    // glfwShowWindow(state.windowHandle);
     pWindowState = &state;
     glfwSwapInterval(0);
     glfwSetKeyCallback(state.windowHandle, windowKeyCallback);
