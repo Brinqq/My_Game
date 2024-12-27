@@ -15,6 +15,23 @@ void GLDevice::shutdown(){
 }
 
 
+  int GLDevice::CompileShaderFromSource(unsigned int& shaderid, const char* source, int type){
+  std::string shaderSource;
+  GLShader::getShaderData(shaderSource, source);
+  const char* ss = shaderSource.c_str();
+  if(type == 0){
+    shaderid = glCreateShader(GL_VERTEX_SHADER);
+  }
+  if(type == 1){
+    shaderid = glCreateShader(GL_FRAGMENT_SHADER);
+  }
+  glShaderSource(shaderid, 1, &ss, NULL);
+  glCompileShader(shaderid);
+  if(GLShader::checkCompileStatus(shaderid)){return 1;} 
+  return 0;
+}
+
+
 
 int GLDevice::newShaderProgramFromSource(unsigned int& program, const char* vertex, const char* pixel){
   std::string pixelShaderSource;

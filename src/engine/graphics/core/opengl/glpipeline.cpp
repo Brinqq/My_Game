@@ -2,6 +2,9 @@
 #include "gldefines.h"
 #include "glattributes.h"
 
+#include "platform.h"
+#include "defines.h"
+
 
 int GLPipeline::newVertexArrayObject(unsigned int& vao, const unsigned int vertexBuffer, const unsigned int indiceBuffer, GLAttribLayout layout){
   glGenVertexArrays(1, &vao);
@@ -26,4 +29,11 @@ void GLPipeline::draw(const unsigned int shader, const unsigned int vao, const i
 void GLPipeline::clearScreen(const float R, const float G, const float B){
   glClearColor(R, G, B, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+
+void GLPipeline::swapBuffer(){
+#if _WINDOW_API_GLFW
+  glfwSwapBuffers(pStateHandles->windowState.windowHandle);
+#endif
 }

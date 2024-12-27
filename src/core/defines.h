@@ -5,9 +5,10 @@
 
 #if __APPLE__
 #define __GAME_BUILD_DEBUG 1
-#define _GR_BACKEND_VULKAN 0
-#define _GR_BACKEND_OPENGL 1 // opengl blows bro wtf
+#define _GR_BACKEND_VULKAN 1
+#define _GR_BACKEND_OPENGL 0 // opengl blows bro wtf
 #define _GR_BACKEND_METAL 0
+
 #define _WINDOW_API_GLFW 1
 #define _WINDOW_API_NATIVE 0
 #endif

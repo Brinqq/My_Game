@@ -18,7 +18,6 @@ int eventSystemInitialize(){
 }
 
 int subscribeToStaticEvent(const StaticEventType type, const callback function){
-  
   staticEvents[type].callbacks.emplace_back(function);
   return 0;
 }

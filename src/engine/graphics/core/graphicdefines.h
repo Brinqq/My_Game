@@ -2,13 +2,11 @@
 
 #include "defines.h"
 
-class GLView;
-class GLDevice;
-class GLPipeline;
 
 #if _GR_BACKEND_VULKAN
 #endif
 #if _GR_BACKEND_OPENGL
+#include "opengl.h"
 typedef GLView RenderView;
 typedef GLDevice RenderDevice;
 typedef GLPipeline RenderPipeline;

@@ -122,9 +122,9 @@ void engineInit(){
   inputSystemInitialize();
   movementEventSetup();
   timingInitialize();
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
   modelTimePoint = globalTimingNewTimePoint();
-  l();
+  // l();
 }
 
 void testUpdate(){
@@ -133,8 +133,8 @@ void testUpdate(){
   if(globalTimePointCheck(modelTimePoint,(float)1/60)){
     testUpdateModelTransform();
   }
-  g_pipeline.clearScreen(0.1f, 0.1f, 0.25f);
-  g_pipeline.draw(g_shader, g_vertexArray, sizeof(indices), GL_TRIANGLES);
+  // g_pipeline.clearScreen(0.1f, 0.1f, 0.25f);
+  // g_pipeline.draw(g_shader, g_vertexArray, sizeof(indices), GL_TRIANGLES);
   glfwSwapBuffers(pStateHandles->windowState.windowHandle);
 }
 

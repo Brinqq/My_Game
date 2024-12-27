@@ -6,6 +6,7 @@
 #include "game.h"
 #include "platform.h"
 #include "events/events.h"
+#include "renderer.h"
 
 static void exitProgramCallback(){
   gExitFlag = 1;
@@ -14,15 +15,15 @@ static void exitProgramCallback(){
 static void loop(){
   while(!gExitFlag){
     platformGlobalUpdate();
-    testUpdate();
+    Engine::EngineUpdateSystems();
+    Game::gameUpdate();
   }
 }
 
 void applicationStart(){
   platformInitialize();
-  engineInit();
+  if(Engine::initialEngineSystems()){return;};
+  Game::gameInitialize();
   subscribeToStaticEvent(KEY_PRESSED_ESC_EVENT, exitProgramCallback);
   loop();
-  //cleanup()
-  engineDeinitialize();
 }
