@@ -41,9 +41,11 @@ static VulkanError vulkanCreateInstance(){
   };
 
   bstl::Vector<const char*> ext;
+  ext.append("VK_KHR_get_physical_device_properties2");
   platformGetRequiredVulkanExtensions(ext);
   VkInstanceCreateInfo instanceInfo{};
   VkApplicationInfo appInfo{};
+  int x = 3 + ext.size();
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appInfo.pApplicationName = "Game";
   appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -57,9 +59,7 @@ static VulkanError vulkanCreateInstance(){
   instanceInfo.enabledExtensionCount = ext.size();
   instanceInfo.ppEnabledExtensionNames = ext.data();
   instanceInfo.flags = PLATFORM_VULKAN_REQUIRED_INSTANCE_FLAGS;
-
   VKCALL(vkCreateInstance(&instanceInfo, nullptr, &g_instance))
-
   return VULKAN_ERROR_NONE;
 }
 
@@ -72,5 +72,6 @@ static void cleanup(){
 int vulkanInitialize(){
   vulkanCreateInstance();
   vulkanCreatePhysicalDevice(g_instance, g_gpu);
+  vulkanCreateLogicalDevice(g_gpu);
   return 0;
 }
