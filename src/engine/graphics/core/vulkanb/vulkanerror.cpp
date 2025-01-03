@@ -49,6 +49,9 @@ VkBool32 vulkanInternalDebugMessageCallback(
   std::tm* localTime = localtime(&time);
   gInternalLog.append(std::asctime(localTime));
   gInternalLog.append(pCallbackData->pMessage);
+  if(messageSeverity ==  VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT){
+    vulkanFlushInternalLogs();
+  }
   return 0;
 }
 
