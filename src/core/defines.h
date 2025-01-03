@@ -13,6 +13,17 @@
 #define _WINDOW_API_NATIVE 0
 #endif
 
+#if _GR_BACKEND_OPENGL && __APPLE__
+#define GL_SILENCE_DEPRECATION
+#endif
+
+#if __DEBUG
+#if __clang__
+#define DEBUG_TRAP  __builtin_trap()
+#endif
+#else
+#define DEBUG_TRAP 
+#endif
 //Assertion for 64 bit arch
 static_assert(sizeof(char) == 1, "Application requires compilation with 64bit compiler!");
 static_assert(sizeof(short) == 2, "Application requires compilation with 64bit compiler!");
@@ -22,7 +33,4 @@ static_assert(sizeof(float) == 4, "Application requires compilation with 64bit c
 static_assert(sizeof(double) == 8, "Application requires compilation with 64bit compiler!");
 
 
-#if _GR_BACKEND_OPENGL && __APPLE__
-  #define GL_SILENCE_DEPRECATION
-#endif
 
