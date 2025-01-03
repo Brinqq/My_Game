@@ -13,7 +13,7 @@ static void exitProgramCallback(){
 }
 
 static void loop(){
-  while(!gExitFlag){
+while(!gExitFlag){
     platformGlobalUpdate();
     Engine::EngineUpdateSystems();
     Game::gameUpdate();
