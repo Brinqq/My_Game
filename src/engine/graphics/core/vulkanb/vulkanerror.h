@@ -27,3 +27,15 @@ inline void vkResultWrap(int code ,int line , const char* file){
 inline void throwVulkanError(const VulkanError code, int line, const char* file){
   LOG_CRITICAL("%s ERROR thrown from LINE %i: FILE %s", vulkanErrorMessages[code], line, file);
 }
+
+int vulkanErrorsInit();
+
+void vulkanFlushInternalLogs();
+
+VkBool32 vulkanInternalDebugMessageCallback(
+  VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+  VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+  void* pUserData);
+
+

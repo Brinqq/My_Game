@@ -3,4 +3,5 @@
 #include "vulkan/vulkan.h"
 
 int vulkanInitialize();
+void vulkanUpdate();
 

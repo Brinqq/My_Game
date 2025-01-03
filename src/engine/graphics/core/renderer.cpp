@@ -7,6 +7,7 @@
 
 
 static void updateVulkan(){
+  vulkanUpdate();
   
 }
 

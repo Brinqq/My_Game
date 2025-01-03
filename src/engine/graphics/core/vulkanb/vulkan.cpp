@@ -2,6 +2,7 @@
 #include "platform.h"
 #include "vulkanerror.h"
 #include "vulkandevice.h"
+#include "vulkanview.h"
 #include "log.h"
 
 
@@ -31,8 +32,9 @@ int checkForRequiredExtensionSupport(){
 }
 
 int checkForRequiredLayerSupport(){
-
+  return 0; 
 }
+
 
 static VulkanError vulkanCreateInstance(){
 
@@ -40,9 +42,20 @@ static VulkanError vulkanCreateInstance(){
     return VULKAN_ERROR_MISSING_EXTENSION;
   };
 
-  bstl::Vector<const char*> ext;
-  ext.append("VK_KHR_get_physical_device_properties2");
+ 
+  
+  VkDebugUtilsMessengerCreateInfoEXT callbackCreateInfo{};
+  callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT; 
+  callbackCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+  callbackCreateInfo.messageSeverity =  VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+  callbackCreateInfo.pfnUserCallback = vulkanInternalDebugMessageCallback;
+
+
+  bstl::Vector<const char*> ext(6);
   platformGetRequiredVulkanExtensions(ext);
+  ext.append("VK_KHR_get_physical_device_properties2");
+  ext.append("VK_EXT_metal_surface");
+  ext.append("VK_KHR_surface");
   VkInstanceCreateInfo instanceInfo{};
   VkApplicationInfo appInfo{};
   int x = 3 + ext.size();
@@ -59,6 +72,7 @@ static VulkanError vulkanCreateInstance(){
   instanceInfo.enabledExtensionCount = ext.size();
   instanceInfo.ppEnabledExtensionNames = ext.data();
   instanceInfo.flags = PLATFORM_VULKAN_REQUIRED_INSTANCE_FLAGS;
+  instanceInfo.pNext = (void*)&callbackCreateInfo;
   VKCALL(vkCreateInstance(&instanceInfo, nullptr, &g_instance))
   return VULKAN_ERROR_NONE;
 }
@@ -68,10 +82,16 @@ static void cleanup(){
   vkDestroyInstance(g_instance, nullptr);
 }
 
+void vulkanUpdate(){
+  vulkanFlushInternalLogs();
+}
+
 
 int vulkanInitialize(){
+  vulkanErrorsInit();
   vulkanCreateInstance();
   vulkanCreatePhysicalDevice(g_instance, g_gpu);
-  vulkanCreateLogicalDevice(g_gpu);
+  // vulkanCreateLogicalDevice(g_gpu);
+  // vulkanCreateView(g_instance);
   return 0;
 }
