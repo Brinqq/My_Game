@@ -1,0 +1,7 @@
+bin/*
+debug/*
+build/*
+compile_flags.txt
+*.DS_Store
+todo.md
+
