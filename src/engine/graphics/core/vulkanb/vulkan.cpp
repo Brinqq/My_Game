@@ -26,6 +26,7 @@ int checkForRequiredExtensionSupport(){
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, pAvailableExtensions);
 
   for(int i = 0; i < extensionCount; i++){
+
   }
   
   return 0;
@@ -56,6 +57,7 @@ static VulkanError vulkanCreateInstance(){
   ext.append("VK_KHR_get_physical_device_properties2");
   ext.append("VK_EXT_metal_surface");
   ext.append("VK_KHR_surface");
+  ext.append("VK_EXT_debug_utils");
   VkInstanceCreateInfo instanceInfo{};
   VkApplicationInfo appInfo{};
   int x = 3 + ext.size();
@@ -91,7 +93,6 @@ int vulkanInitialize(){
   vulkanErrorsInit();
   vulkanCreateInstance();
   vulkanCreatePhysicalDevice(g_instance, g_gpu);
-  // vulkanCreateLogicalDevice(g_gpu);
-  // vulkanCreateView(g_instance);
+  vulkanCreateLogicalDevice(g_gpu);
   return 0;
 }

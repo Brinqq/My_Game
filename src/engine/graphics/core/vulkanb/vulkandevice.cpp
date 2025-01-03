@@ -4,6 +4,7 @@
 //TODO: setup queue family null atm tell needed
 struct QueueFamilyIndices{
   uint32_t graphicFamily = 0;
+  uint32_t presentFamily = 2;
 };
 
 const char* requestedDeviceExtensions[1] = {
@@ -12,6 +13,7 @@ const char* requestedDeviceExtensions[1] = {
 
 struct VulkanQueues{
   VkQueue graphics;
+  VkQueue present;
 };
 
 //return error as -1 or the index of the gpu
@@ -29,30 +31,46 @@ int chooseMostSuitableGPU(const VkPhysicalDevice* device, uint32_t nDevices){
 
 
 static int queueFamilyCreate(){
-  
+  return 0;
 }
 
 static VkDevice g_device{};
 VulkanQueues queues;
 
 int vulkanCreateLogicalDevice(const VkPhysicalDevice& gpu){
+  uint32_t c;
+  vkGetPhysicalDeviceQueueFamilyProperties(gpu, &c, nullptr);
+  VkQueueFamilyProperties* a = (VkQueueFamilyProperties*)alloca(sizeof(VkQueueFamilyProperties)* c);
+  vkGetPhysicalDeviceQueueFamilyProperties(gpu, &c, a);
+  
+
   QueueFamilyIndices familyIndices{};
-  VkDeviceQueueCreateInfo queueCreateInfo{};
+  VkDeviceQueueCreateInfo* qci;
   VkPhysicalDeviceFeatures features{};
   VkDeviceCreateInfo deviceInfo{};
   float queuePriorty = 1.0f;
-  queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  queueCreateInfo.queueCount = 1;
-  queueCreateInfo.queueFamilyIndex = familyIndices.graphicFamily;
-  queueCreateInfo.pQueuePriorities = &queuePriorty;
+  float presentPriorty = 0.96f;
+
+  qci = (VkDeviceQueueCreateInfo*)alloca(sizeof(VkDeviceQueueCreateInfo) * 2);
+  memset(qci, 0, sizeof(VkDeviceQueueCreateInfo)*2);
+  qci[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  qci[0].queueCount = 1;
+  qci[0].queueFamilyIndex = familyIndices.graphicFamily;
+  qci[0].pQueuePriorities = &queuePriorty;
+  qci[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  qci[1].queueCount = 1;
+  qci[1].queueFamilyIndex = familyIndices.presentFamily;
+  qci[1].pQueuePriorities = &presentPriorty;
+
   deviceInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  deviceInfo.queueCreateInfoCount = 1;
-  deviceInfo.pQueueCreateInfos = &queueCreateInfo;
+  deviceInfo.queueCreateInfoCount = 2;
+  deviceInfo.pQueueCreateInfos = qci;
   deviceInfo.pEnabledFeatures = &features;
   deviceInfo.enabledExtensionCount = 1;
   deviceInfo.ppEnabledExtensionNames = requestedDeviceExtensions;
   VKCALL(vkCreateDevice(gpu, &deviceInfo, nullptr, &g_device));
   vkGetDeviceQueue(g_device, familyIndices.graphicFamily, 0, &queues.graphics);
+  vkGetDeviceQueue(g_device, familyIndices.presentFamily, 0, &queues.present);
   return 0;
 }
 
