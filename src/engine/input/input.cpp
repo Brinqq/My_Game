@@ -49,7 +49,7 @@ void inputSystemUpdate(){
     if(key == INPUT_KEY_A){staticEventTick(KEY_PRESSED_A_EVENT);continue;}
     if(key == INPUT_KEY_S){staticEventTick(KEY_PRESSED_S_EVENT);continue;}
     if(key == INPUT_KEY_D){staticEventTick(KEY_PRESSED_D_EVENT);continue;}
-    // if(key == INPUT_KEY_ESC){staticEventTick(KEY_PRESSED_ESC_EVENT);continue;}
+    if(key == INPUT_KEY_ESC){staticEventTick(KEY_PRESSED_ESC_EVENT);continue;}
   }
 }
 
