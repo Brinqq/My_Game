@@ -16,7 +16,9 @@ inline const char* vulkanErrorMessages[VULKAN_ERROR_LENGTH] = {
     "Unable to find a usable device!",
 };
 
-#define VKCALL(x) VkResult result; result = x; if(result != 0){vkResultWrap(result, __LINE__, __FILE__);};
+inline VkResult result;
+
+#define VKCALL(x) result = x; if(result != 0){vkResultWrap(result, __LINE__, __FILE__);};
 #define VULKAN_ERROR_THROW(x) throwVulkanError(x, __LINE__, __FILE__)
 
 inline void vkResultWrap(int code ,int line , const char* file){ 
