@@ -31,8 +31,8 @@ void pwGetPresentationSize(int& x, int& y);
 void platformGetRequiredVulkanExtensions(bstl::Vector<const char*>& extensions);
 
 
-void inline pvCreateSurface(VkInstance inst, VkSurfaceKHR* surface){
-  // glfwCreateWindowSurface(inst, pStateHandles->windowState.windowHandle, nullptr, surface);
+void inline platformVulkanSurfaceCreate(VkInstance inst, VkSurfaceKHR* surface){
+  glfwCreateWindowSurface(inst, pStateHandles->windowState.windowHandle, nullptr, surface);
 };
 
   //internal logic
