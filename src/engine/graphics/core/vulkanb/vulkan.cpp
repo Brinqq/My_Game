@@ -4,11 +4,11 @@
 #include "vulkandevice.h"
 #include "vulkanview.h"
 #include "log.h"
-
-
 #include "bstl/vector.h"
 
 
+
+//TODO: add checks for extensions support instead if assuming required EXTS are available.
 
 static VkInstance g_instance;
 static VkPhysicalDevice g_gpu;
@@ -81,6 +81,8 @@ static VulkanError vulkanCreateInstance(){
 
 
 static void cleanup(){
+  vulkanViewDestroy();
+  vulkanDeviceDestroy();
   vkDestroyInstance(g_instance, nullptr);
 }
 
@@ -94,5 +96,6 @@ int vulkanInitialize(){
   vulkanCreateInstance();
   vulkanCreatePhysicalDevice(g_instance, g_gpu);
   vulkanCreateLogicalDevice(g_gpu);
+  vulkanViewCreate(g_instance, g_gpu);
   return 0;
 }
