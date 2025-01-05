@@ -1,14 +1,16 @@
 #include "vulkandevice.h"
 #include "vulkandefines.h"
  
-//TODO: setup queue family null atm tell needed
 struct QueueFamilyIndices{
   uint32_t graphicFamily = 0;
   uint32_t presentFamily = 2;
 };
 
-const char* requestedDeviceExtensions[1] = {
-  "VK_KHR_portability_subset"
+
+#define VULKAN_DEVICE_EXT_COUNT 2
+const char* requestedDeviceExtensions[2] = {
+  "VK_KHR_portability_subset",
+  VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
 
 struct VulkanQueues{
@@ -66,7 +68,7 @@ int vulkanCreateLogicalDevice(const VkPhysicalDevice& gpu){
   deviceInfo.queueCreateInfoCount = 2;
   deviceInfo.pQueueCreateInfos = qci;
   deviceInfo.pEnabledFeatures = &features;
-  deviceInfo.enabledExtensionCount = 1;
+  deviceInfo.enabledExtensionCount = VULKAN_DEVICE_EXT_COUNT;
   deviceInfo.ppEnabledExtensionNames = requestedDeviceExtensions;
   VKCALL(vkCreateDevice(gpu, &deviceInfo, nullptr, &g_device));
   vkGetDeviceQueue(g_device, familyIndices.graphicFamily, 0, &queues.graphics);
@@ -96,3 +98,12 @@ int vulkanCreatePhysicalDevice(const VkInstance& instance, VkPhysicalDevice& dev
 
   return 0;
 }
+
+void vulkanDeviceDestroy(){
+  vkDestroyDevice(g_device, nullptr);
+}
+
+VkDevice& vulkanLogicalDeviceGet(){return g_device;}
+
+
+
