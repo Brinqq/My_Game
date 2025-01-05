@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include <stdio.h>
+#include <type_traits>
 
 //TODO: support moves
 //TODO: Add support for alignment asap(defualt to system size and support custom)
@@ -65,7 +66,14 @@ private:
 
   void construct(_type* start, const _type* end){
     while(start != end){
-      start->_type();
+      *start=_type();
+      start++;
+    }
+  }
+
+  void constructR(_type* start, const _type* end){
+    while(start != end){
+      *start = _type();
       start++;
     }
   }
@@ -288,10 +296,32 @@ public:
   }
 
   void resize(const uint32_t size){
-    assert(false);
-    m_capacity = size;
-    deallocateMemory();
-    allocateMemory(m_capacity * sizeof(_type));
+    if(m_size == size) return;
+
+    if(size > m_capacity){
+      reallocateMemory((sizeof(_type)*size) * m_expanse );
+      if(!isTrivial){
+        constructR(begin() + m_size , begin() + size);
+      }
+
+      m_capacity = size * m_expanse;
+      m_size = size;
+      return;
+    }
+
+    if(size < m_size){
+    if(!std::is_trivial_v<_type>){
+      deconstruct(begin() + size, begin() + m_size);
+    }
+      reallocateMemory((sizeof(_type) + size) * m_expanse);
+    }
+      
+    if(!isTrivial){
+      constructR(begin()+(m_size + 1), begin()+size);
+    }
+
+    m_size = size;
+    
   }
   
   void shrink(){
