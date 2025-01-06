@@ -4,6 +4,7 @@
 #include "vulkandevice.h"
 #include "vulkanview.h"
 #include "log.h"
+#include "vulkanpipeline.h"
 #include "bstl/vector.h"
 
 
@@ -97,5 +98,6 @@ int vulkanInitialize(){
   vulkanCreatePhysicalDevice(g_instance, g_gpu);
   vulkanCreateLogicalDevice(g_gpu);
   vulkanViewCreate(g_instance, g_gpu);
+  vulkanPipelineCreate();
   return 0;
 }
